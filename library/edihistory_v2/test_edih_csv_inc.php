@@ -674,7 +674,7 @@ function csv_parameters($type='ALL') {
 	// OpenEMR copies each batch file to sites/default/edi and this project never writes to that directory
 	// batch reg ex -- '/20[01][0-9]-[01][0-9]-[0-3][0-9]-[0-9]{4}-batch*\.txt/' '/\d{4}-\d{2}-\d{2}-batch*\.txt$/'
 	//
-    $p_ar['f837'] = array('type'=>'f837', 'directory'=>$GLOBALS['OE_SITE_DIR'].DS.'edi', "claims_csv"=>$edihist_dir.DS.'csv'.DS.'claims_f837.csv',
+    $p_ar['f837'] = array('type'=>'f837', 'directory'=>$GLOBALS['OE_SITE_DIR'].DS.'edi', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f837.csv',
 						'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f837.csv', 'filedate'=>'Date', 'claimdate'=>'SvcDate', 'regex'=>'/\-batch(.*)\.txt$/');
 	//
 	//$p_ar['csv'] = array("type"=>'csv', "directory"=>$edihist_dir.'/csv', "claims_csv"=>'ibr_parameters.csv',
@@ -1751,6 +1751,60 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f835') {
 	return $fn;
 }
 
+/**
+ * list claim records with error status in  given file
+ *
+ * @param string
+ * @param string
+ *
+ * @return array
+ */
+function csv_errors_by_file($filetype, $filename) {
+	//
+	$ret_ar = array();
+	$ft = csv_file_type($filetype);
+	if ($ft == 'f277' || $ft == 'f835') {
+		$param = csv_parameters($ft);
+		$csv_file = $param['claims_csv'];
+	} else {
+		csv_edihist_log("csv_errors_by_file: incorrect file type $filetype");
+		return $ret_ar;
+	}
+	//
+	if (($fh = fopen($csv_file, "r")) !== FALSE) {
+		if ($ft == 'f835') {
+			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
+				// check filename, then status
+				if ($data[5] == $filename) {
+					if (!in_array($data[3], array('4', '22', '23', '25')) ) {
+						$ret_ar[] = $data;
+					}
+				}
+			}
+		} elseif ($ft == 'f277') {
+			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
+				if ($data[5] == $filename) {
+					if ( !strpos('|A1|A2|A5', substr($data[3], 0, 2))) {
+						$ret_ar[] = $data;
+					}
+				}
+			}
+		} elseif ($strpos('|f997|f999|f271', $ft)) {
+			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
+				if ($data[5] == $filename) {
+					if ($data[3] !== 'A') {
+						$ret_ar[] = $data;
+					}
+				}
+			}
+		} else {
+			csv_edihist_log("csv_errors_by_file: file type did not match $filetype");
+		}
+		fclose($fh);
+	}
+	//
+	return $ret_ar;
+}
 
 
 /**

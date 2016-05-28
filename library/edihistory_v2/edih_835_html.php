@@ -812,7 +812,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
 	$clp_html = "";
 	$trl_html = "";
 	//
-	$acctng = array('pmt'=>0,'fee'=>0,'clmpmt'=>0,'clmadj'=>0,'svcfee'=>0,'svcadj'=>0,'plbadj'=>0,'ptrsp'=>0);
+	$acctng = array('pmt'=>0,'fee'=>0,'clmpmt'=>0,'clmadj'=>0, 'ptrsp'=>0, 'svcptrsp'=>0, 'svcfee'=>0,'svcadj'=>0,'plbadj'=>0);
 	//
 	foreach($trans_ar as $trans) {
 		$clpsegs = array();

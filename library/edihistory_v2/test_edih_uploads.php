@@ -259,9 +259,9 @@ function edih_ziptoarray($zipfilename, $param_ar, $single=false) {
 				$fzp['name'] = $bnm;
 				$fzp['tmp_name'] = $newname;
 				// verification checks special to our application
-				$f_uplz = ibr_upload_match_file($param_ar, $fzp, $html_str);
+				$f_uplz = edih_upload_match_file($param_ar, $fzp, $html_str);
 				//
-				if (is_array($f_uplz) && count($f_uplz) > 0 ) {
+				if (is_array($f_uplz) && count($f_uplz)) {
 					if ( isset($f_uplz['reject']) ) {
 						$f_zr['reject'][] = $f_uplz['reject'];
 					} elseif ( isset($f_uplz['name']) ) {
@@ -424,16 +424,19 @@ function edih_upload_files() {
 		if ( strpos(strtolower($fa['name']), '.zip') || strpos($fa['type'], 'zip') ) {
 			//
 			// this is a bit involved since we cannot predict how many files will be returned
-			// get an array of files from the zip unpack function
+			// get an array of files from the zip unpack function"fileUplx12"
 			//
-			if ($uplkey != "fileUplMulti") {
-				$f_upl = edih_ziptoarray($fa['tmp_name'], $param_ar, false);
-			} else {
-				$f_upl = edih_ziptoarray($fa['tmp_name'], $param_ar, true);
-			}
+			//if ($uplkey != "fileUplmulti") {
+				//$f_upl = edih_ziptoarray($fa['tmp_name'], $param_ar, false);
+			//} else {
+				//$f_upl = edih_ziptoarray($fa['tmp_name'], $param_ar, true);
+			//}
+			$f_upl = edih_ziptoarray($fa['tmp_name'], $param_ar);
 			//
 			// put them in the correct type array
+			// expect fupl in form [type] = array(fn1, fn2, fn3, ...)
 			if (is_array($f_upl) && count($f_upl)) {
+				// $tp is file type, fz is file name
 				foreach($f_upl as $tp=>$fz) {
 					if ( $tp == 'reject' ) {
 						if ( isset($f_ar['reject']) && is_array($fz) ) {
