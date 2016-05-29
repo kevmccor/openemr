@@ -203,6 +203,11 @@ div#processed dl.f278 > dt.feven { background-color: #DAEEF1; }
 div#processed dl.f278 > dd.codd { background-color: #CBE0E3; }
 div#processed dl.f278 > dd.ceven { background-color: #C9E7EC; }
 
+
+div#tblshow {
+   width: 860px;
+   max-width: fit-content;
+}
 /* 
  * encounter record table
  */

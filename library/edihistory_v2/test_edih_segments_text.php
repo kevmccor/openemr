@@ -1038,35 +1038,35 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 	//'HB'=>'271', 'HS'=>'270', 'HR'=>'276', 'HI'=>'278','HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
 	switch((string)$ftype) {
 		case 'HC':
-			$capstr = "$fn Claim "; //$cls = "txt837";
+			$capstr = "Claim "; //$cls = "txt837";
 			$trn_html = edih_837_text($segments, $de, $errs);
 			break;
 		case 'HP':
-			$capstr = "$fn Payment "; //$cls = "txt835"; 
+			$capstr = "Payment "; //$cls = "txt835"; 
 			$trn_html = edih_835_text($segments, $de);
 			break;
 		case 'HR':
-			$capstr = "$fn Status Query ";  //$cls = "txt276";
+			$capstr = "Status Query ";  //$cls = "txt276";
 			$trn_html = edih_277_text($segments, $de, $errs);
 			break;				
 		case 'HN': 
-			$capstr = "$fn Claim Status "; //$cls = "txt277"; 
+			$capstr = "Claim Status "; //$cls = "txt277"; 
 			$trn_html = edih_277_text($segments, $de, $stsegkey);
 			break;
 		case 'HS': 
-			$capstr = "$fn Eligibility Query "; //$cls = "txt270";
+			$capstr = "Eligibility Query "; //$cls = "txt270";
 			$trn_html = edih_271_text($segments, $de, $errs);
 			break;			
 		case 'HB': 
-			$capstr = "$fn Eligibility Report "; //$cls = "txt271";
+			$capstr = "Eligibility Report "; //$cls = "txt271";
 			$trn_html = edih_271_text( $segments, $de);
 			break;			
 		case 'HI': 
-			$capstr = "$fn Authorization "; //$cls = "txt278";
+			$capstr = "Authorization "; //$cls = "txt278";
 			$trn_html = edih_278_text( $segments, $de, $errs);
 			break;
 		case 'FA': 
-			$capstr = "$fn Batch Acknowledgment "; //$cls = "txt997";
+			$capstr = "Batch Acknowledgment "; //$cls = "txt997";
 			$trn_html = edih_997_text( $segments, $de);
 			break;
 		default:

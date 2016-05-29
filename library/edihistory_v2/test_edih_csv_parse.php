@@ -254,16 +254,14 @@ function edih_837_csv_data($obj837) {
 		foreach($env_ar['GS'] as $gs) {
 			if ($gs['icn'] == $icn) { 
 				$ret_ar[$icn]['type'] = csv_file_type( $gs['type'] );
-				$gsdate = edih_parse_date($gs['date']); 
+				$gsdate = $gs['date']; 
 				break; 
 			}
 		}
 		//
-		$gsdate = ($gsdate) ? $gsdate : edih_parse_date($isa['date']);
-		//
 		$fdx = count($ret_ar[$icn]['file']);
 		//
-		$ret_ar[$icn]['file'][$fdx]['Date'] = $gsdate;
+		$ret_ar[$icn]['file'][$fdx]['Date'] = (string)$gsdate;
 		$ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
 		$ret_ar[$icn]['file'][$fdx]['Control'] = (string)$icn;
 		//
@@ -278,6 +276,7 @@ function edih_837_csv_data($obj837) {
 			$clmct = count($stacct);
 			// $st['icn'] is the ISA control number for the ISA envelope containing the ST--SE
 			$date = $env_ar['ISA'][$st['icn']]['date'];
+			$stn = $st['stn'];
 			for($i=0; $i<$clmct; $i++) {
 				//echo '=== ACCT '.$stacct[$i].' '.$st['stn'].'<br />'.PHP_EOL;
 				$asegs = $obj837->edih_x12_transaction($stacct[$i], $st['stn']);
@@ -303,7 +302,7 @@ function edih_837_csv_data($obj837) {
 							$ret_ar[$icn]['claim'][$cdx]['CLM01'] = '';
 							$ret_ar[$icn]['claim'][$cdx]['InsLevel'] = '';
 							//
-							$ret_ar[$icn]['claim'][$cdx]['BHT03'] = (strlen($bht03) == 13) ? $bht03 : $st['icn'];
+							$ret_ar[$icn]['claim'][$cdx]['BHT03'] = (strlen($bht03) == 13) ? $bht03 : sprintf("%s%04d", $st['icn'], $st['stn']);
 							$ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
 							//
 							$ret_ar[$icn]['claim'][$cdx]['Fee'] = '0';
@@ -1029,7 +1028,7 @@ function edih_997_csv_data($obj997) {
 		// CTX segment identifiers
 		$trans_id = array('837'=>'CLM01', '270'=>'TRN02', '276'=>'TRN02');
 		//
-		//['f997']['claim'] =  array('PtName', 'SvcDate', 'CLM01', 'Status', 'ak_num', 'File_997', 'Control', 'err_seg');
+		//['f997']['claim'] =  array('PtName', 'RspDate', 'CLM01', 'Status', 'ak_num', 'File_997', 'Control', 'err_seg');
 		foreach($env_ar['ST'] as $st) {
 			//
 			if ( $st['icn'] != $icn ) { continue; }
@@ -1096,14 +1095,10 @@ function edih_997_csv_data($obj997) {
 						$pt_info = edih_rsp_st_match($bht03syn, $rspsttype);
 						//return array ['pt_name']['svcdate']['clm01']['batch_name'];
 						if ( $pt_info ) {
-							$ret_ar[$icn]['claim'][$cdx]['PtName'] = (isset($pt_info['pt_name'])) ? $pt_info['pt_name'] : '';
-							$ret_ar[$icn]['claim'][$cdx]['SvcDate'] = (isset($pt_info['svcdate'])) ? $pt_info['svcdate'] : '';
-							$ret_ar[$icn]['claim'][$cdx]['CLM01'] = (isset($pt_info['clm01'])) ? $pt_info['clm01'] : '';
+							$ptname = (isset($pt_info['pt_name'])) ? $pt_info['pt_name'] : 'Unknown';
 							$have_pt = true;
 						} else {
-							$ret_ar[$icn]['claim'][$cdx]['PtName'] = 'Unknown';
-							$ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
-							$ret_ar[$icn]['claim'][$cdx]['CLM01'] = '';
+							$ptname = 'Unknown';
 						}						
 					}
 					// ///////////////////////// 

@@ -228,6 +228,8 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 		//
 		if ($gtb == 'file') {
 			$html_str = edih_disp_x12file();
+		} elseif ($gtb == 'claim') {
+			$html_str = edih_disp_x12trans();
 		} elseif ($gtb == 'hist') {
 			$chkd = (isset( $_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_SANITIZE_STRING) : '';
 			if ($chkd == 'yes') {
@@ -235,8 +237,6 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 			} else {
 				$html_str = edih_disp_x12trans();
 			}
-		} elseif ($gtb == 'claim') {
-			$html_str = edih_disp_x12trans();
 		} else {
 			$html_str = '<p>Input error: missing parameter</p>';
 			csv_edihist_log("GET error: missing parameter, no 'gtbl' value");

@@ -448,7 +448,7 @@ function edih_list_denied_claims($filetype, $filename, $trace='') {
 	$row_ar = array();
 	//
 	$ft = csv_file_type($filetype);
-	if (strpos('|f271|f277|f835', $ft)) {
+	if (strpos('|f997|f271|f277|f835', $ft)) {
 		$row_ar = csv_denied_by_file($ft, $filename, $trace);
 	} else {
 		$str_html .= "Invalid file type $filetype for denied claim search<br />";
@@ -564,14 +564,14 @@ function edih_claim_history($encounter) {
 				//
 				$ch_html .= "<td>{$ch['PtName']}</td>".PHP_EOL;
 				$ch_html .= "<td>$dt</td>".PHP_EOL;
-				$ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=hist&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&fmt=seg'>{$ch['CLM01']}</a></td>".PHP_EOL;
+				$ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&fmt=seg'>{$ch['CLM01']}</a></td>".PHP_EOL;
 				$ch_html .= "<td title='{$ch['Control']}'><a  class='seg' href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&fmt=seg'>{$ch['FileName']}</a></td>".PHP_EOL;
 				//
 				$ch_html .= "</tr>".PHP_EOL;
 			}
 		} else {
 			$ch_html .= "<tr class='ch837'>".PHP_EOL;
-			$ch_html .= "<td colspan=4>837 Claim -- Nothing found for $pe in $tp record</td>".PHP_EOL;
+			$ch_html .= "<td colspan=4>837 Claim -- Nothing found for $e</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
 		}
 	}
@@ -591,14 +591,14 @@ function edih_claim_history($encounter) {
 				//array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');;
 				$ch_html .= "<tr class='ch997'>";
 				$ch_html .= "<td>Rsp Ack</td>".PHP_EOL;
-				$ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?gtbl=hist&fname={$ch['FileName']}&ftype=$tp&trace={$ch['Trace']}&rsptype={$ch['RspType']}&errseg={$ch['err_seg']}'>{$ch['Status']}</a></td>".PHP_EOL;
+				$ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&trace={$ch['Trace']}&rsptype={$ch['RspType']}&errseg={$ch['err_seg']}'>{$ch['Status']}</a></td>".PHP_EOL;
 				$ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&fmt=seg'>{$ch['FileName']}</a></td>".PHP_EOL;
 				$ch_html .= "<td title='Response type/date'>{$ch['RspType']} {$ch['RspDate']}</td>".PHP_EOL;
 				$ch_html .= "</tr>".PHP_EOL;
 			}
 		} else {
 			$ch_html .= "<tr class='ch997'>";
-			$ch_html .= "<td colspan=4>Ack 997/999 -- Nothing found for $pe</td>".PHP_EOL;
+			$ch_html .= "<td colspan=4>Ack 997/999 -- Nothing found for $e</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
 		}
 	}
@@ -616,7 +616,7 @@ function edih_claim_history($encounter) {
 				$ch_html .= "<tr class='ch277'>";
 				//
 				$ch_html .= "<td>Claim Status</td>".PHP_EOL;
-				$ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=hist&fname={$ch['FileName']}&ftype=$tp&bht03={$ch['BHT03']}&fmt=htm'>{$ch['Status']}</a></td>".PHP_EOL;
+				$ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&bht03={$ch['BHT03']}&fmt=htm'>{$ch['Status']}</a></td>".PHP_EOL;
 				$ch_html .= "<td title='{$ch['FileName']}'><a href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&fmt=seg'>{$ch['FileName']}</a></td>".PHP_EOL;
 				$ch_html .= "<td title='Payer {$ch['Payer']}'>{$ch['Trace']}</td>".PHP_EOL;
 				//
@@ -644,7 +644,7 @@ function edih_claim_history($encounter) {
 				$ch_html .= "<tr class='ch835'>";
 				//
 				$ch_html .= "<td>Claim Payment</td>".PHP_EOL;
-				$ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=hist&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&summary=no'>{$ch['Status']}</a></td>".PHP_EOL;
+				$ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&summary=no'>{$ch['Status']}</a></td>".PHP_EOL;
 				$ch_html .= "<td><a href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&trace={$ch['Trace']}&fmt=htm'>{$ch['Trace']}</a></td>".PHP_EOL;
 				$ch_html .= "<td title=$msg>{$ch['Payer']}</td>".PHP_EOL;
 				//
@@ -808,8 +808,8 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 		$csv_html .= "<h4>Table: $tp_lbl &nbsp;$tp &nbsp;All Dates Rows: $rwct &nbsp; Shown: $ln_ct</h4>".PHP_EOL;
 	}
 	//
-	//$csv_html .= "<table id='csvTable' class='csvDisplay'>".PHP_EOL;
-	$csv_html .= "<table id='csvTable' class='display'>".PHP_EOL;
+	//$csv_html .= "<table id='csvTable' class='csvDisplay'>".PHP_EOL;  class='display'max-width: fit-content
+	$csv_html .= "<table id='csvTable' style='width: fit-content; float: left'>".PHP_EOL;
 	$csv_html .= csv_thead_html($tp, $csv_type);
 	$csv_html .= "<tbody>".PHP_EOL;
 	//
@@ -1095,7 +1095,7 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 					} elseif ($k == 'Trace') {
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&trace=$v&rsptype=$rsp&err=$err&fmt=seg'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'err_seg') {
-						$csv_html .= "<td>".substr($v, 0, 8)." ...</td>".PHP_EOL;
+						$csv_html .= "<td title='$v'>".substr($v, 0, 8)."...</td>".PHP_EOL;
 					} else {
 						$csv_html .= "<td>$v</td>".PHP_EOL;
 					}

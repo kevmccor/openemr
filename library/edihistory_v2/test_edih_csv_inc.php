@@ -1794,7 +1794,7 @@ function csv_denied_by_file($filetype, $filename, $trace='') {
 					}
 				}
 			}
-		} elseif ($strpos('|f997|f999|f271', $ft)) {
+		} elseif (strpos('|f997|f999|f271', $ft)) {
 			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
 				if ($data[5] == $filename) {
 					if ($data[3] !== 'A') {
