@@ -365,7 +365,7 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 				if ($err_only) {
 					// output err_only is when claim status is a rejected type
 					if ($ft == 'f835') {
-						if ( !in_array($claim['Status'], array('4', '22', '23', '25')) ) {
+						if ( in_array($claim['Status'], array('1', '2', '3', '19', '20', '21')) ) {
 							continue;
 						}
 					} elseif ($ft == 'f277') {
