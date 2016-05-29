@@ -442,6 +442,54 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 }
 
 
+function edih_list_denied_claims($filetype, $filename, $trace='') {
+	//
+	$str_html = '';
+	$row_ar = array();
+	//
+	$ft = csv_file_type($filetype);
+	if (strpos('|f271|f277|f835', $ft)) {
+		$row_ar = csv_denied_by_file($ft, $filename, $trace);
+	} else {
+		$str_html .= "Invalid file type $filetype for denied claim search<br />";
+		csv_edihist_log("edih_list_denied_claims: wrong filetype $filetype");
+		return $str_html;
+	}
+	//
+	if (count($row_ar)) {
+		$rw_ct = count($row_ar);
+		$str_html .= "<h4>Denied/Rejected Claims Listing</h4>".PHP_EOL;
+		$str_html .= "<dl>$rw_ct claims <em>File</em> $filename ";
+		$str_html .= ($trace) ? "<em>Trace</em> $trace</dl>".PHP_EOL : "".PHP_EOL;
+		if ($ft == 'f835') {
+			foreach($row_ar as $row) {
+				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
+			}
+		} elseif ($ft == 'f277') {
+			foreach($row_ar as $row) {
+				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+			}
+		} elseif ($ft == 'f271') {
+			foreach($row_ar as $row) {
+				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+			}
+		} elseif ($ft == 'f997') {
+			foreach($row_ar as $row) {
+				//'f997': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg'); break;
+				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
+			}
+		}
+		//
+		$str_html .= "</dl>".PHP_EOL;
+	} else {
+		$str_html .= "Search returned no data rows from file $filename<br />";
+		csv_edihist_log("edih_list_denied_claims: no rows returned $filetype $filename $trace");
+	}
+	//
+	return $str_html;
+}
+			
+
 /**
  * check the csv claims tables and return rows for a particular encounter
  *
@@ -790,6 +838,12 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'Claim_ct') {
 						$csv_html .= "<td>$v <a class='sub' href='edih_main.php?tracecheck=$trc&ckprocessed=yes'><em>P?</em></a></td>".PHP_EOL;
+					} elseif ($k == 'Denied') {
+						if ((int)$v > 0) {
+							$csv_html .= "<td><a class='sub' href='edih_main.php?chkdenied=yes&fname=$fn&ftype=$tp&trace=$trc'>$v</a></td>".PHP_EOL;
+						} else {
+							$csv_html .= "<td>$v</td>".PHP_EOL;
+						}
 					} else {
 						$csv_html .= "<td>$v</td>".PHP_EOL;
 					}
@@ -812,6 +866,12 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'Trace') {						
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&rsptype=$rsp&fmt=seg'>$v</a></td>".PHP_EOL;
+					} elseif ($k == 'RejCt') {
+						if ((int)$v > 0) {
+							$csv_html .= "<td><a class='sub' href='edih_main.php?chkdenied=yes&fname=$fn&ftype=$tp'>$v</a></td>".PHP_EOL;
+						} else {
+							$csv_html .= "<td>$v</td>".PHP_EOL;
+						}
 					} else {
 						$csv_html .= "<td>$v</td>".PHP_EOL;
 					}
@@ -832,7 +892,13 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'Control') {
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
-					} else {
+					} elseif ($k == 'Reject') {
+						if ((int)$v > 0) {
+							$csv_html .= "<td><a class='sub' href='edih_main.php?&chkdenied=yes&fname={$val['FileName']}&ftype=$tp'>$v</a></td>".PHP_EOL;
+						} else {
+							$csv_html .= "<td>$v</td>".PHP_EOL;
+						}
+					}  else {
 						$csv_html .= "<td>$v</td>".PHP_EOL;
 					}
 				}

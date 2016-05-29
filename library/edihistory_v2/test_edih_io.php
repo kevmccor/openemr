@@ -359,6 +359,16 @@ function edih_disp_file_upload() {
 	return $str_html;
 }
 
+function edih_disp_denied_claims() {
+	//
+	$fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_SANITIZE_STRING) : '';
+	$ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_SANITIZE_STRING) : '';
+	$trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_SANITIZE_STRING) : '';
+	//
+	$str_html = edih_list_denied_claims($ft, $fn, $trace);
+	//
+	return $str_html;
+}	
 
 /**
  * display the contents of an x12_edi transaction selected from

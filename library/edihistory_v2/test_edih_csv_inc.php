@@ -1149,7 +1149,7 @@ function csv_table_header($file_type, $csv_type) {
 			case 'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
 			case 'f277': $hdr = array('Date', 'FileName', 'Control', 'Accept', 'AccAmt', 'Reject', 'RejAmt'); break;
 			case 'f270': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
-			case 'f271': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'Denied', 'Payer'); break;
+			case 'f271': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'Reject', 'Payer'); break;
 			case 'f278': $hdr = array('Date', 'FileName', 'Control', 'TrnCount', 'Auth', 'Payer'); break;
 			case 'f835': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Claim_ct', 'Denied', 'Payer'); break;
 		}
@@ -1752,18 +1752,18 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f835') {
 }
 
 /**
- * list claim records with error status in  given file
+ * list claim records with Denied or Reject status in  given file
  *
  * @param string
  * @param string
  *
  * @return array
  */
-function csv_errors_by_file($filetype, $filename) {
+function csv_denied_by_file($filetype, $filename, $trace='') {
 	//
 	$ret_ar = array();
 	$ft = csv_file_type($filetype);
-	if ($ft == 'f277' || $ft == 'f835') {
+	if (strpos('|f997|f271|f277|f835', $ft)) {
 		$param = csv_parameters($ft);
 		$csv_file = $param['claims_csv'];
 	} else {
@@ -1771,13 +1771,17 @@ function csv_errors_by_file($filetype, $filename) {
 		return $ret_ar;
 	}
 	//
-	if (($fh = fopen($csv_file, "r")) !== FALSE) {
+	if (($fh1 = fopen($csv_file, "r")) !== false) {
 		if ($ft == 'f835') {
 			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
 				// check filename, then status
 				if ($data[5] == $filename) {
-					if (!in_array($data[3], array('4', '22', '23', '25')) ) {
-						$ret_ar[] = $data;
+					if ($trace) {
+						if ($data[4] == $trace) {
+							if (!in_array($data[3], array('4', '22', '23', '25')) ) { $ret_ar[] = $data; }
+						}
+					} else {
+						if (!in_array($data[3], array('4', '22', '23', '25')) ) { $ret_ar[] = $data; }
 					}
 				}
 			}

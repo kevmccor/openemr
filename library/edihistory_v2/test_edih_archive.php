@@ -74,12 +74,12 @@
 function edih_archive_report($period = '') {
 	//
 	$str_html = '';
-	$chkdt = 'NA';
-	if ($period) {
-		$tper =  edih_archive_date($period);
-		$chkdt = ($tper) ? $tper : '';
-		$strdt = ($chkdt) ? substr($chkdt,0,4).'-'.substr($chkdt,4,2).'-'.substr($chkdt,6,2) : '';
-	}
+	$chkdt = '';
+	$strdt = '';
+	// edih_archive_date returns empty string if no period
+	$tper =  edih_archive_date($period);
+	$chkdt = ($tper) ? $tper : 'None';
+	$strdt = ($tper) ? substr($chkdt,0,4).'-'.substr($chkdt,4,2).'-'.substr($chkdt,6,2) : 'None';
 	//
 	csv_edihist_log("edih_archive_report: creating archive report with date $chkdt");
 	//
@@ -90,12 +90,13 @@ function edih_archive_report($period = '') {
 		return "<p>There was an error creating the report.</p>";
 	}		
 	//
+	$str_html .= "<h3>Report on edi files using archive date $strdt</h3>".PHP_EOL;
 	foreach($params as $key=>$param) {
 		$old_ct = 0;
 		$clm_ct = 0;
-		$clp_ct = 0;
 		$dir_ct = 0;
 		$dir_sz = 0;
+		$row_ct = 0;
 		$dir_kb = '';
 		$subdir_ct = 0;
 		$fn835 = '';
@@ -117,26 +118,29 @@ function edih_archive_report($period = '') {
 				}
 				//
 				$csv_ar = csv_assoc_array($tp, 'file');
-				$row_ct = count($csv_ar);
-				if ( $chkdt || $tp == 'f837' || $tp == 'f835' ) {
+				$row_ct = (is_array($csv_ar)) ? count($csv_ar) : 0;
+				if ($row_ct) {
 					foreach($csv_ar as $row) {
-						if ( $chkdt && strcmp($row['Date'], $chkdt) < 0 ) { $old_ct++; }
+						if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) { $old_ct++; }
 						if ($tp == 'f837') { $clm_ct += $row['Claim_ct']; }
+						if ($tp == 'f277') { $clm_ct += ($row['Accept'] + $row['Reject']); }
 						if ($tp == 'f835') {
-							$clp_ct += $row['Claim_ct'];
+							$clm_ct += $row['Claim_ct'];
 							if ($fn835 !== $row['FileName']) {
-								$fn835 = $row['FileName'];
+								$fn835 = $row['FileName']; // check for duplicate
 								$fn835_ct++;
 							}
 						}
 					}
+					//
+					$dir_kb = csv_convert_bytes($dir_sz);
+				} else {
+					csv_edihist_log("edih_archive_report: error $tp file count $dir_ct with csv rows $row_ct");
 				}
 				//
-				$dir_kb = csv_convert_bytes($dir_sz);
-				//
 				if ($tp == 'f835') {
-					$mis = ( ($fn835_ct) != $dir_ct ) ? "(mismatch csv $fn835_ct dir $dir_ct)" : "";
-					$old_ct = $fn835_ct;
+					$mis = ( ($fn835_ct) != $dir_ct ) ? "(mismatch csv $fn835_ct dir $dir_ct)" : "(check/eft count)";
+					$old_ct = ($old_ct) ? $fn835_ct : $old_ct;
 				} elseif ($tp == 'f837')  {
 					$str_html .= "<li><em>Note:</em> 837 Claims files are not archived </li>".PHP_EOL;
 					$mis = ( ($row_ct) != $dir_ct ) ? "(mismatch csv $row_ct dir $dir_ct)" : "";
@@ -148,7 +152,6 @@ function edih_archive_report($period = '') {
 				$str_html .= ($subdir_ct) ? "<li> <em>warning</em> found $subdir_ct sub-directories</li>".PHP_EOL : "";
 				$str_html .= "<li>files csv table has $row_ct rows $mis</li>".PHP_EOL;
 				$str_html .= ($clm_ct) ? "<li>there are $clm_ct claim transactions counted</li>".PHP_EOL : "";
-				$str_html .= ($clp_ct) ? "<li>there are $clp_ct claim transactions counted</li>".PHP_EOL : "";
 				$str_html .= ($old_ct) ? "<li>Archive date $strdt would archive $old_ct files </li>".PHP_EOL : "";
 				$str_html .= "</ul>".PHP_EOL;
 			} else {
@@ -174,6 +177,7 @@ function edih_archive_report($period = '') {
 function edih_archive_date($period) {
 	//
 	$dtpd2 = '';
+	if (!$period) { return $dtpd2; }
 	$is_period = preg_match('/\d{1,2}(?=m)/', $period, $matches);
 	//
 	if ( count($matches) ) {
@@ -558,6 +562,8 @@ function edih_archive_csv_combine($filetype, $csvtype) {
 	$csv_arch_file = $tmpcsv.DS.'arch_'.$csvtp.'_'.$filetype.'.csv';
 	$csv_new_file = $tmpdir.DS.'cmb_'.$csvtp.'_'.$filetype.'.csv';
 	//
+	// arrays used to eliminate duplicate rows
+	$dup_ar = $dup_unique = $dup_keys = array();
 	// combine files by combining arrays and writing a tmp file
 	// get the present csv file contents
 	$car1 = csv_assoc_array($filetype, $csvtp);
@@ -610,7 +616,7 @@ function edih_archive_csv_combine($filetype, $csvtype) {
 				} else {
 					$ky = 'Control';
 				}
-				// array_column() php v5.5 $dup_ar$dup_unique$dup_keys$car_cmb_unique
+				// array_column() php v5.5 
 				foreach($car_cmb as $idx=>$row) {
 					$dup_ar[$idx] = $row[$ky];
 				}

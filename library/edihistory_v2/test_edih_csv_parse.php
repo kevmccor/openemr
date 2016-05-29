@@ -1439,14 +1439,14 @@ function edih_271_csv_data($obj270) {
 			} // end foreach($stsegs as $seg)
 			//
 		} // endforeach($env_ar['ST'] as $st
-				// file: 'f271': array('Date', 'FileName', 'Control', 'Claim_ct', 'Denied', 'Payer')
+				// file: 'f271': array('Date', 'FileName', 'Control', 'Claim_ct', 'Reject', 'Payer')
 		$fdx = count($ret_ar[$icn]['file']);
 		//
 		$ret_ar[$icn]['file'][$fdx]['Date'] = $gsdate;
 		$ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
 		$ret_ar[$icn]['file'][$fdx]['Control'] = $icn;
 		$ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $cdx;
-		$ret_ar[$icn]['file'][$fdx]['Denied'] = $rej_ct;
+		$ret_ar[$icn]['file'][$fdx]['Reject'] = $rej_ct;
 		$ret_ar[$icn]['file'][$fdx]['Payer'] = $payer_name;
 		//
 	} // endforeach($env_ar['ISA'] as $icn=>$isa)

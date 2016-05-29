@@ -218,7 +218,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 		// =====================================
 		$html_str = edih_disp_file_process();
-
+		
 	} elseif ( isset( $_GET['gtbl']) ) {
 		// get from a csv_table
 		// ========= log user access for user commands ===========          
@@ -228,12 +228,18 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 		//
 		if ($gtb == 'file') {
 			$html_str = edih_disp_x12file();
-		} elseif ($gtb == 'hist' || $gtb == 'claim' ) {
+		} elseif ($gtb == 'hist') {
+			$chkd = (isset( $_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_SANITIZE_STRING) : '';
+			if ($chkd == 'yes') {
+				$html_str = edih_disp_denied_claims();
+			} else {
+				$html_str = edih_disp_x12trans();
+			}
+		} elseif ($gtb == 'claim') {
 			$html_str = edih_disp_x12trans();
 		} else {
 			$html_str = '<p>Input error: missing parameter</p>';
 			csv_edihist_log("GET error: missing parameter, no 'gtbl' value");
-			return $html_str;
 		}
 		
 	} elseif ( isset($_GET['csvShowTable']) ) {
@@ -260,6 +266,19 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 			// ajax request on page load
 			$html_str = edih_disp_era_processed();
 			$html_str = "alert('$html_str')";
+		}
+		
+	} elseif ( isset( $_GET['chkdenied']) ) {
+		// files csv table
+		// ========= log user access for user commands ===========          
+		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
+		// =====================================
+		$chkd = filter_input(INPUT_GET, 'chkdenied', FILTER_SANITIZE_STRING);
+		if ($chkd == 'yes') {
+			$html_str = edih_disp_denied_claims();
+		} else {
+			$html_str = '<p>Input error: invalid parameter</p>';
+			csv_edihist_log("GET error: missing parameter, invalid 'chkdenied' value");
 		}
 				
 	} elseif ( isset($_GET['showlog']) ) {
