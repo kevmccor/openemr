@@ -463,20 +463,20 @@ function edih_list_denied_claims($filetype, $filename, $trace='') {
 		$str_html .= ($trace) ? "<em>Trace</em> $trace</dl>".PHP_EOL : "".PHP_EOL;
 		if ($ft == 'f835') {
 			foreach($row_ar as $row) {
-				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f277') {
 			foreach($row_ar as $row) {
-				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f271') {
 			foreach($row_ar as $row) {
-				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f997') {
 			foreach($row_ar as $row) {
 				//'f997': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg'); break;
-				$str_html .= "<dt>{$row[0]} <a class='rsp' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt>{$row[0]} <a class='tbseg' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
 			}
 		}
 		//

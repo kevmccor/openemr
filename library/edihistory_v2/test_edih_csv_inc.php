@@ -1771,19 +1771,20 @@ function csv_denied_by_file($filetype, $filename, $trace='') {
 		return $ret_ar;
 	}
 	//
+	csv_edihist_log("csv_errors_by_file: $ft searching $filename with trace $trace");
+	//
 	if (($fh1 = fopen($csv_file, "r")) !== false) {
 		if ($ft == 'f835') {
 			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
 				// check filename, then status
-				if ($data[5] == $filename) {
-					if ($trace) {
-						if ($data[4] == $trace) {
-							if (!in_array($data[3], array('4', '22', '23', '25')) ) { $ret_ar[] = $data; }
-						}
-					} else {
-						if (!in_array($data[3], array('4', '22', '23', '25')) ) { $ret_ar[] = $data; }
+				if ($trace) {
+					if ($data[4] == $trace) {
+						if (!in_array($data[3], array('1', '2', '3', '19', '20', '21')) ) { $ret_ar[] = $data; }
 					}
+				} elseif ($data[5] == $filename) {
+					if (!in_array($data[3], array('1', '2', '3', '19', '20', '21')) ) { $ret_ar[] = $data; }
 				}
+			
 			}
 		} elseif ($ft == 'f277') {
 			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
