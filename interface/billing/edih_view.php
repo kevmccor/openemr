@@ -41,9 +41,16 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <!-- jQuery-ui and datatables  -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/css/custom-theme/jquery-ui-1.10.4.custom.min.css" />
-<!-- -->
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/js/DataTables-1.10.11/DataTables-1.10.11/css/jquery.dataTables.min.css" />
+<!--
+    <link rel="stylesheet" href="<?php echo $web_root?>/library/js/DataTables-1.10.11/DataTables-1.10.11/css/jquery.dataTables_themeroller.css" />
+ -->
+	<link rel="stylesheet" href="<?php echo $web_root?>/library/js/DataTables-1.10.11/DataTables-1.10.11/css/jquery.dataTables.min.css" />
+<!--  -->
 	<link rel="stylesheet" href="<?php echo $web_root?>library/js/DataTables-1.10.11/DataTables-1.10.11/css/dataTables.jqueryui.min.css" />
+
+<!--
+	<link rel="stylesheet" href="<?php echo $web_root?>library/js/DataTables-1.10.11/css/dataTables.min.css" />
+-->
 	<link rel="stylesheet" href="<?php echo $web_root?>/library/js/DataTables-1.10.11/Scroller-1.4.1/css/scroller.jqueryui.min.css" />
 <!-- -->
     <!-- edi_history css -->
@@ -317,6 +324,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <script src="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js" type="text/javascript"></script>
 <script src="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
 <script src="<?php echo $web_root?>/library/js/DataTables-1.10.11/datatables.min.js"></script>
+<script src="<?php echo $web_root?>/library/js/DataTables-1.10.11/DataTables-1.10.11/datatables.jqueryui.min.js"></script>
+
 <!-- -->
 <script src="<?php echo $web_root?>library/js/DataTables-1.10.11/Scroller-1.4.1/js/dataTables.scroller.min.js"></script>
   
@@ -491,6 +500,7 @@ $.ui.dialog.prototype._init = function() {
         $(this).hide();
         dialog_element.open();
     });
+    
 'a.rsp .sub .seg'
     $(function(){
     //$('a').on('click', function(e){
@@ -509,13 +519,31 @@ jQuery('div#tblshow > tr').hover(
 function(e){ jQuery(this).addClass('outlinetr'); },
 function(e){ jQuery(this).removeClass('outlinetr'); }
 );
-jQuery('div#tblshow > a.rsp .sub .seg').on('click', function(e) {
-e.preventDefault();
-$('<div/>', {'class':'myDlgClass', 'id':'link-'+($(this).index()+1)})
-        .load($(this).attr('href')).appendTo('body').dialog();
-}
-);
+*/
+/** alternative to bindlinks function  **** */
+	var dialogOpts = {appendTo: "#tabs", draggable: true, height: '300', width: '560', resizable: true, title: 'Transaction Detail'  };
+			
+	jQuery('div#tbcsvhist').on('click', 'a', function(e) {
+		e.preventDefault();
+		jQuery('<div/>', {'class':'myDlgClass', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dialogOpts);
+	});
+	
+	jQuery('div#tbsub').on('click', 'a', function(e) {
+		e.preventDefault();
+		jQuery('<div/>', {'class':'myDlgClass', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dialogOpts);
+	});
 
+/* *** not for this div
+	jQuery('div#x12rsp').on('click', 'a', function(e) {
+		e.preventDefault();
+		var x12rptOpts = {appendTo: "#tabs", draggable: true, width: '640', resizable: true, title: 'Report'  };
+		jQuery('<div/>', {'class':'myDlgClass', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(x12rptOpts);
+	});
+* ***/	
+/*
 // **** script ****
 // bindlinks('#processed', 'click', '.rsp', 'click', '#rsp', '<?php echo xla("Response"); ?>'),
 // bindlinks('#tblshow', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
@@ -525,22 +553,20 @@ $('<div/>', {'class':'myDlgClass', 'id':'link-'+($(this).index()+1)})
             e.preventDefault();
             //
             var statDialog = jQuery(cElem).dialog({
+				appendTo: "#tabs",
                 autoOpen: false,
 				resizable: true,
                 draggable: true,
                 modal: false,
                 title: mytitle, //jQuery(this).attr('title'),
                 height: 360,
-                width: 640,
-                maxHeight: 420,
-                maxWidth: 800,
-                // position: { my: 'left top', at: 'left top', of: dElem, collision: 'none'},  // tblshow""center",
-                // position: { my: 'right', at: 'left', of: dEvt, collision: 'none' }               
+                width: 560           
             });
             //
             if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
             jQuery.get(jQuery(this).attr('href'), function(data){ jQuery(cElem).html(data); })
-            statDialog.dialog('open'); 
+            statDialog.dialog('open');
+            jQuery(dElem).tooltip();
         });
     }
 
@@ -785,7 +811,8 @@ jQuery('#fileupl1 > li').hover(
 					//var mytbl = "<table id='csvTable' class='csvDisplay'>" + jQuery(data).not('#dttl').html() + "</table>";
 					//var mytbl = jQuery(data).not('#dttl').html();
 					//jQuery('#tblshow').html(jQuery.trim(mytbl));
-					jQuery('#tblshow').html(data); 
+					jQuery('#tblshow').html(data);
+					jQuery('#tblshow').css('maxWidth', 'fit-contents'); 
 					jQuery('#tblshow table#csvTable').DataTable({
 						//DisplayLength: 10,    
 						//bJQueryUI: true, 
@@ -796,7 +823,7 @@ jQuery('#fileupl1 > li').hover(
                         //sScrollX: true
                         //bPaginate: true,
                         //scroll: true,
-                        'jQuery UI': true,
+                        //'jQuery UI': true,
                         'processing': true,
 						'scrollY': '300px',
 						'scrollCollapse': true,
@@ -874,18 +901,22 @@ jQuery('#fileupl1 > li').hover(
 	});
 	//
 	jQuery('#x12file').change( function(){
-		// clear uploaded files list, since new selected files list is coming
+		// clear file display
 		jQuery('#x12rsp').html('');
 		jQuery('#x12filesbmt').prop('disabled', false);
 	});
 	//
 	jQuery('#x12filerst').on('click', function(e){
+		// <input type="button" onclick="this.form.reset();">
+		// $('#form').trigger("reset");
 		e.preventDefault();
 		e.stopPropagation();
-		// clear uploaded files list, since new selected files list is coming
+		// clear file display
 		jQuery('#x12rsp').html('');
 		jQuery('#x12filesbmt').prop('disabled', true);
-		jQuery('#x12view').reset();
+		jQuery('#x12view').trigger('reset');
+		//jQuery('#x12file').val('');
+		//jQuery('#x12view').reset();
 	});
 
 
@@ -911,25 +942,26 @@ jQuery('#fileupl1 > li').hover(
             data: { archivelog: 'yes' },
             dataType: "json",
 
-            success: [ function(data) {
+            success: function(data) {
 				var str = str + "<ul id='logarchlist'>";
 				var fct = data.length;
 				if (fct == 0) {
-					str = str + '<li>No logs older than 7 days</li>';
+					str = str + "<li>No logs older than 7 days</li>";
 				} else {
 					for(var i = 0; i < fct; i++) {
 						str = str + "<li>" + data[i] + "</li>";
 					}
 				};
 				str = str + '</ul>';
+				jQuery('#notesrsp').hide();
+		        jQuery('#logrsp').html('');
+		        jQuery('#logrsp').html(str);
+		        jQuery('#logrsp').show();				
 			},
-			loglist()
-			]
+		    error: function( xhr, status ) { alert( "Sorry, there was a problem!" ); }
 		});
-		jQuery('#notesrsp').hide();		
-        jQuery('#logrsp').html('');
-        jQuery('#logrsp').html(str);
-        jQuery('#logrsp').show();
+		loglist();
+
     });
     
     jQuery('#logclose').on('click', function(e) {
@@ -976,7 +1008,7 @@ jQuery('#fileupl1 > li').hover(
                 jQuery('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>"); 
                 // necessary to trim the data since php from script has leading newlines (UTF-8 issue) '|:|'
 		        jQuery('#logrsp').hide();
-                jQuery('#notesrsp :textarea').val(jQuery.trim(data));
+                jQuery('#notesrsp \\:textarea').val(jQuery.trim(data));
                 jQuery('#notesrsp').show();
             }
         });
