@@ -28,253 +28,6 @@
 //require_once("$srcdir/edihistory_v2/test_edih_csv_parse.php");
 //require_once("$srcdir/edihistory_v2/test_edih_csv_inc.php");
 
-
-
-/**
- * Display csv table data in an HTML table for newly processed files
- * 
- * This function uses the csv table header row to order the csv data
- * The data array should be file table rows and claim table rows,
- * and have this structure:
- *    array[icn]['type'] => x12 type
- *    array[icn]['file'][i][array( --- data row---) ]      
- *    array[icn]['claim'][i][array( --- data row---) ]  
- * 
- * @uses csv_table_header()
- * @uses csv_thead_html()
- * @param array
- * @param bool
- * @return string
- */
-
-/* *****************
-function edih_csv_process_html($data_ar, $err_only=false) {
-	//
-	$str_html = '';
-	$clm_html = '';
-	//$dtl = ($err_only) ? "Errors only" : "All claims";
-	//
-	// debug
-	$dbg_str = 'edih_csv_process_html: data_ar'.PHP_EOL;
-	foreach($data_ar as $icn=>$csvdata) {
-		$dbg_str .= $icn.' csvdata '.$csvdata['type'].' files '.count($csvdata['file']).' claims '.count($csvdata['claim']).PHP_EOL;
-	}
-	csv_edihist_log($dbg_str);
-	//
-	foreach ($data_ar as $icn=>$csvdata) {
-		if ( array_key_exists('type', $csvdata) ) {
-			$ft = $csvdata['type'];
-		} else {
-			$str_html .= 'edih_csv_process_html() for '.$icn.' did not get type value';
-			csv_edihist_log('edih_csv_process_html: for '.$icn.' did not get type value');
-			return $str_html;
-		}
-		if ( array_key_exists('file', $csvdata) ) {
-			//
-			//$hvals = csv_table_header($ft, 'file');
-			//$col_ct = count($hvals); 
-			// cols=$col_ct <caption>$ft Files Summary</caption>
-			$str_html .= "<table class='$ft'>".PHP_EOL;
-			$str_html .= csv_thead_html($ft, 'file');
-			$str_html .= "<tbody>".PHP_EOL;
-			$fidx = 0;
-			foreach($csvdata['file'] as $key=>$csvfile) {
-				//
-				//'f997': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'RspType', 'RejCt');
-				$oe = ( $fidx % 2 == 1 ) ? 'fodd' : 'feven';
-				$cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
-			//case 'f837': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
-			//case 'ta1': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Code'); break;
-			//case 'f997': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'RspType', 'RejCt'); break;
-			//case 'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
-			//case 'f277': $hdr = array('Date', 'FileName', 'Control', 'Accept', 'AccAmt', 'Reject', 'RejAmt'); break;
-			//case 'f270': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
-			//case 'f271': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'Denied', 'Payer'); break;
-			//case 'f278': $hdr = array('Date', 'FileName', 'Control', 'TrnCount', 'Auth', 'Payer'); break;
-			//case 'f835': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Claim_ct', 'Denied', 'Payer'); break;				//
-				$dte = (isset($csvfile['Date'])) ? $csvfile['Date'] : '';
-				$fn1 = (isset($csvfile['FileName'])) ? $csvfile['FileName'] : '';
-				$ctl = (isset($csvfile['Control'])) ? $csvfile['Control'] : '';
-				$clmct = (isset($csvfile['Claim_ct'])) ? $csvfile['Clain_ct'] : '';
-				$trc = (isset($csvfile['Trace'])) ? $csvfile['Trace'] : '';
-				$typ = (isset($csvfile['RspType'])) ? $csvfile['RspType'] : '';
-				$rej = (isset($csvfile['RejCt'])) ? $csvfile['RejCt'] : '';
-				//
-				$str_html .= "<tr class=$oe>".PHP_EOL;
-				//
-				$dt_str .= ($fn1) ? "<a class='$cls' href='edih_main.php?gtbl=file&fname=$fn1&ftype=$ft&fmt=seg'>$fn1</a>" : "";
-				$dt_str .= ($dte) ? " ".$dte : "";
-				$dt_str .= ($clmct) ? "<em>Claims</em> ".$clmct : "";
-				if ($ft == 'f997' || $ft == 'ta1') {
-					$dt_str .= ($typ) ? " ".$typ : "";
-					$dt_str .= ($rej) ? " ".$rej : "";
-					$dt_str .= ($trc) ? " <a class='$cls' title=$trc href='edih_main.php?gtbl=file&trace=$trc&ftype=$typ'><em>trace</em></a>" : "";
-				} elseif ($ft == 'f277') {
-					$dt_str .= (isset($csvfile['Accept'])) ? " <em>Accpt</em> " $csvfile['Accept'] : "";
-					$dt_str .= (isset($csvfile['Reject'])) ? " <em>Rej</em> ".$csvfile['Reject'] : "";
-				} elseif ($ft == 'f835') {
-					$dt_str .= ($trc) ? " <em>Chk</em> <a class='$cls' href='edih_main.php?gtbl=file&trace=$trc&ftype=$typ&fmt=htm'>$trc</a>" : "";
-					$dt_str .= (isset($csvfile['Denied'])) ? " <em>Denied</em> " $csvfile['Denied'] : "";
-					$dt_str .= (isset($csvfile['Payer'])) ? " ".$csvfile['Payer'] : "";
-				}
-				//
-				$str_html .= "<dt class=$oe>$dt_str</dt>".PHP_EOL;
-				// to make sure we have data matching column headings  FileName: fname type  Control: fname trace type
-				for ($i=0; $i<$col_ct; $i++) {
-					// 
-					if ($hvals[$i] == 'FileName') {
-						$str_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$fn1&ftype=$ft&fmt=seg'>$fn1</a></td>".PHP_EOL;
-					} elseif ($hvals[$i] == 'Control') {
-						$str_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&icn=$ctl&ftype=$ft'>$ctl</a></td>".PHP_EOL;
-					} elseif ($hvals[$i] == 'Trace') {
-						$str_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&trace=$trc&ftype=$typ'>$trc</a></td>".PHP_EOL;
-					} elseif ($ft == 'f835' && $hvals[$i] == 'Claim_ct') {
-						$str_html .= "<td>{$csvfile[$hvals[$i]]} <a class='sub' href='edih_main.php?tracecheck=$trc&ckprocessed=yes'>P?</a></td>".PHP_EOL;
-					} else {
-						$str_html .= "<td>{$csvfile[$hvals[$i]]}</td>";
-					}
-				}
-				$str_html .= PHP_EOL."</tr>".PHP_EOL;
-				$fidx++;
-			}
-			$str_html .= PHP_EOL."</tbody>".PHP_EOL;
-		}
-		//
-		// handle the claim array
-		if ( array_key_exists('claim', $csvdata) ) {
-			$hvals = csv_table_header($ft, 'claim');
-			$col_ct = count($hvals);
-			$tcls = 'c'.$ft;
-			//<caption>$ft Claims ($dtl)</caption>
-			//$clm_html = "</tbody></table>".PHP_EOL;
-			$clm_html .= "<table class='$tcls' cols='$col_ct'>".PHP_EOL;
-			$clm_html .= csv_thead_html($ft, 'claim');
-			$clm_html .= "<tbody>".PHP_EOL;
-			//
-			$cidx = 0;
-			$errct = 0;
-			//
-			foreach($csvdata['claim'] as $csvclaim) {
-				if ($err_only) {
-					// output err_only is when claim status is a rejected type or payment amount is 0
-					if ( strpos('|f835|era', $ft) ) {
-						if ( !in_array($csvclaim['Status'], array('4', '22', '23')) ) { continue; }
-					}
-					if ( strpos('|f277', $ft) && strpos('|A1|A2|A5', $csvclaim['Status']) ) { continue; }
-					if ( strpos('|f997|f999|f271', $ft) && $csvclaim['Status'] == "A") { continue; }
-					if ( strpos('|f837|f270|f276', $ft) ) { continue; }
-				} 
-				//
-				$errct++;
-				//
-			//case 'f837': $hdr = array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' ); break;
-			//case 'f997': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg'); break;
-			//case 'f276': $hdr = array('PtName', 'ReqDate', 'CLM01', 'ClaimID', 'BHT03', 'FileName', 'Payer', 'Trace'); break;
-			//case 'f277': $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Trace'); break;
-			//case 'f270': $hdr = array('PtName', 'ReqDate', 'Trace', 'InsBnft', 'BHT03', 'FileName', 'Payer'); break;
-			//case 'f271': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Payer'); break;
-			//case 'f278': $hdr = array('PtName', 'FileDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Auth', 'Payer'); break;
-			//case 'f835': $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer'); break;
-		//}
-				$ptn = (isset($csvclaim['PtName'])) ? $csvclaim['PtName'] : '';
-				$fn1 = (isset($csvclaim['FileName'])) ? $csvclaim['FileName'] : '';
-				$ctl = (isset($csvclaim['Control'])) ? $csvclaim['Control'] : '';
-				$pid = (isset($csvclaim['CLM01'])) ? $csvclaim['CLM01'] : '';
-				$sts = (isset($csvclaim['Status'])) ? $csvclaim['Status'] : '';
-				$err = (isset($csvclaim['err_seg'])) ? $csvclaim['err_seg'] : '';
-				$trc = (isset($csvclaim['Trace'])) ? $csvclaim['Trace'] : '';
-				$bht03 = (isset($csvclaim['BHT03'])) ? $csvclaim['BHT03'] : '';
-				$pay = (isset($csvclaim['Payer'])) ? $csvclaim['Payer'] : '';	
-				$typ = (isset($csvfile['RspType'])) ? $csvclaim['RspType'] : '';
-				$auth = (isset($csvfile['Auth'])) ? $csvclaim['Auth'] : '';
-				//	
-				$ins = (isset($csvfile['InsBnft'])) ? $csvclaim['InsBnft']	 : '';
-				$ins = (isset($csvfile['InsLevel'])) ? $csvclaim['InsLevel'] : $ins;
-				//
-				$dte = (isset($csvclaim['SvcDate'])) ? $csvclaim['SvcDate'] : '';
-				$dte = (isset($csvclaim['ReqDate'])) ? $csvclaim['ReqDate'] : $dte;
-				$dte = (isset($csvclaim['RspDate'])) ? $csvclaim['RspDate'] : $dte;
-				$dte = (isset($csvclaim['FileDate'])) ? $csvclaim['FileDate'] : $dte;
-				
-				$dd_str .= ($ptn) ? $ptn.' ' : '';
-				$dd_str .= ($dte) ? $dte.' ' : '';
-				if (strpos('|f277|f276|f270|f271|f278', $ft)) {
-					$dd_str .= ($bht03) ? "<em>view</em> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=htm'>H</a> <a class='seg' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=seg'>T</a>" : "";
-					$dd_str .= ($pid) ? "<a class='sub' href='edih_main.php?gtbl=claim&rsptype=f837&trace=$pid&fmt=seg'>$pid</a>" : "";
-					$dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?gtbl=claim&rsptype=f278&trace=$trc&fmt=seg'><em>trace</em></a>" : "";
-				} elseif ($ft == 'f835') {
-					$dd_str .= ($pid) ? "$pid <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=htm'>H</a> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=seg'>T</a>" : "";
-					$dd_str .= ($ins) ? "<em>InsLevel</em> $ins" : "";
-				}  elseif ($ft == 'f997') {
-					$dd_str .= ($trc) ? " <a class='$cls' title='$trc' href='edih_main.php?gtbl=claim&trace=$trc&rsptype=$typ&errseg=$err&fmt=seg'><em>trace</em></a>" : "";
-					$dd_str .= ($err) ? " $err" : "";
-				} else {
-					$dd_str .= ($pid) ? "<a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=seg'>$pid</a>" : "";
-				}
-				$dd_str .= ($fn1) ? " <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&fmt=htm'>$fn1</a>";
-				//
-				$oe = ( $cidx % 2 ) ? 'codd' : 'ceven';
-				$cidx++;
-				//
-				$clm_html .= "<dd class='$oe'>$dd_str</dd>".PHP_EOL;
-				//
-				
-				$cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
-				//
-				$clm_html .= "<tr class='$oe'>".PHP_EOL;
-				//
-				for ($i=0; $i<$col_ct; $i++) {
-					//
-					if ($hvals[$i] == 'FileName') {						
-						$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&fmt=htm'>".$fn1."</a></td>";
-					} elseif ($hvals[$i] == 'Control') {						
-						$clm_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&icn=$ctl&fmt=seg'>".$ctl."</a></td>";
-					} elseif ($hvals[$i] == 'CLM01') {
-						if ($ft == 'f277') {
-							$clm_html .= "<td>$sts <a class='sub' href='edih_main.php?gtbl=claim&rsptype=f837&trace=$pid&fmt=seg'>$pid</a></td>";
-						} else {						
-							$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid'>$pid</a></td>";
-						}
-					} elseif ($hvals[$i] == 'Status') {						
-						if ( strpos('|f997|999', $ft) ) {
-							$clm_html .= ($sts=='A') ?"<td>$sts</td>" : "<td class='reject'>".$sts."</td>";
-						} else {
-							$clm_html .= "<td>$sts <a class='sub' href='edih_main.php?gtbl=claim&fname=$fn1&rsptype=f837&trace=$pid&summary=yes'>S</a>&nbsp; <a href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&summary=no'>D</a></td>".PHP_EOL;
-						}
-					} elseif ($hvals[$i] == 'Trace') {
-						if ( strpos('|f997|999', $ft) ) {
-							$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&trace=$trc&rsptype=$typ&ftype=$ft'>$trc</a></td>";
-						} elseif ($ft == 'f277') {
-							$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&trace=$trc&rsptype=f276&ftype=$ft'>$trc</a></td>";
-						} elseif ($ft == 'f271') {
-							$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&trace=$trc&rsptype=f270&ftype=$ft'>$trc</a></td>";
-						} else {
-							$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&trace=$trc'>$trc</a></td>";
-						}
-					} elseif ($hvals[$i] == 'BHT03') {
-						$clm_html .= "<td>$bht03 <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=htm'>H</a> <a class='seg' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=seg'>T</a></td>";
-					} elseif ($hvals[$i] == 'err_seg') {
-						$clm_html .= "<td><a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&trace=$trc&rsptype=$typ&err=$err><abbr title='$err'>".substr($err, 0, 7)."</abbr></a></td>".PHP_EOL;
-					} else {
-						$clm_html .= "<td>{$csvclaim[$hvals[$i]]}</td>".PHP_EOL;
-					}
-				}
-			}
-			$clm_html .= "</tr>".PHP_EOL;		
-		}
-		$clm_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;	
-		//
-		if ($err_only) {
-			if ($errct) { $str_html .= $clm_html; }
-		} else {
-			$str_html .= $clm_html;
-		}						
-	}  // end foreach ($data_ar as $icn=>$csvdata) 
-	//
-	return $str_html;
-}
-**************/
-
 /**
  * Display csv table data in an HTML table for newly processed files
  * 
@@ -458,25 +211,29 @@ function edih_list_denied_claims($filetype, $filename, $trace='') {
 	//
 	if (count($row_ar)) {
 		$rw_ct = count($row_ar);
+		$rwct = 0;
 		$str_html .= "<h4>Denied/Rejected Claims Listing</h4>".PHP_EOL;
-		$str_html .= "<dl>$rw_ct claims <em>File</em> $filename ";
+		$str_html .= "<dl class ='$ft'>$rw_ct claims <em>File</em> $filename ";
 		$str_html .= ($trace) ? "<em>Trace</em> $trace</dl>".PHP_EOL : "".PHP_EOL;
 		if ($ft == 'f835') {
 			foreach($row_ar as $row) {
-				$str_html .= "<dt>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
+				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f277') {
 			foreach($row_ar as $row) {
-				$str_html .= "<dt>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f271') {
 			foreach($row_ar as $row) {
-				$str_html .= "<dt>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f997') {
 			foreach($row_ar as $row) {
-				//'f997': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg'); break;
-				$str_html .= "<dt>{$row[0]} <a class='tbseg' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
+				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbseg' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
 			}
 		}
 		//

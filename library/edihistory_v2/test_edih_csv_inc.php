@@ -159,6 +159,7 @@ function csv_log_manage($list=true) {
 	//$dir = dirname(__FILE__).DS.'log';
 	$dir = csv_edih_basedir().DS.'log';
 	$list_ar = array();
+	$old_ar = array();
 	$lognames = scandir($dir);
 	if ($list) {
 		foreach($lognames as $log) {
@@ -166,42 +167,16 @@ function csv_log_manage($list=true) {
 			$list_ar[] = $log;
 		}
 		$s = (count($list_ar)) ? rsort($list_ar) : false;
+		//
 		return json_encode($list_ar);
-	}
-	// list is false
-	$old_ar = array();
-	//
-	$datetime1 = date_create(date('Y-m-d'));				
-	//
-	$archok = false;
-	$archname = $dir.DS.'log-edih-archive.zip';
-	//	
-	$zip = new ZipArchive;
-	if ($zip->open($archname, ZIPARCHIVE::CREATE | ZIPARCHIVE::CHECKCONS)!==TRUE) {
-	    csv_edihist_log('csv_log_manage: cannot open '.$archname);
+		//
 	} else {
-		$archok = true;
-		$filelimit = 200;
-		if ($zip->numFiles >= $filelimit) {
-			$zip->close();
-			$dte = $datetime1->format('Ymd');
-			$rn = rename($dir.DS.$archname, $dir.DS.$dte.'_'.$archname); 
-			if (!$rn) {
-				$archok = false;
-				csv_edihist_log('csv_log_archive: cannot rename '.$archname); 
-			} else {
-				$zip->open($archname, ZIPARCHIVE::CREATE | ZIPARCHIVE::CHECKCONS);
-				if (!$zip) { 
-					csv_edihist_log('csv_log_archive: cannot create '.$archname);
-				}
-			}
-		}
-	}
-	//
-	if ($zip) { 
+		// list is false, must be archive
+		$datetime1 = date_create(date('Y-m-d'));
+		//				
 		foreach($lognames as $log) {
-			if (!strpos($log, '_log_')) { continue; }
-			// do not archive any log archive files or '.' or '..'
+			if ($log == '.' || $log == '..') { continue; }
+			//
 			$pos1 = strrpos($log, '_');
 			if ($pos1) {
 				$ldate = substr($log, $pos1+1, 10);
@@ -210,28 +185,71 @@ function csv_log_manage($list=true) {
 				//echo '== date difference '.$ldate.' '.$interval->format('%R%a days').PHP_EOL;
 				if ($interval->format('%R%a') < -7) {
 					// older log files are put in zip archive
-					if ( is_readable($dir.DS.$log) ) {
-						$a = $zip->addFile($dir.DS.$log, $log);
-						if ($a) {
-							$old_ar[] = $log;
-							$s = unlink($dir.DS.$frmv);
-							if (!s) {
-								csv_edihist_log('csv_log_archive: error deleting old log '.$log );
-							}
-						}
-					}
+					if ( is_file($dir.DS.$log) ) { $old_ar[] = $log; }
 				}
 			}
 		}
 	}
-	$c = ($zip) ? $zip->close() : false;
-	if ($c) {
-		csv_edihist_log('csv_log_archive: added log files to '.$archname);		
-	} else {
-		csv_edihist_log('csv_log_archive: error in archive of log file');
-	}
 	//
-	return json_encode($old_ar);	
+	$ok = false;
+	$archname = $dir.DS.'edih-log-archive.zip';
+	$filelimit = 200;
+	//
+	if (count($old_ar)) {
+		$zip = new ZipArchive;
+		if (is_file($archname)) {
+			$ok = $zip->open($archname, ZipArchive::CHECKCONS);
+		} else {
+			$ok = $zip->open($archname, ZipArchive::CREATE);
+		}
+		//
+		if ($ok) {
+			if ($zip->numFiles >= $filelimit) {
+				$zip->close();
+				$dte = $datetime1->format('Ymd');
+				$ok = rename($dir.DS.$archname, $dir.DS.$dte.'_'.$archname);
+				csv_edihist_log('csv_log_archive: rename full archive '.$dte.'_'.$archname ); 
+				if ($ok) {
+					$ok = $zip->open($archname, ZipArchive::CREATE);
+					if (!$ok) { 
+						csv_edihist_log('csv_log_archive: cannot create '.$archname);
+					}				
+				} else {
+					csv_edihist_log('csv_log_archive: cannot rename '.$archname);
+				}
+			}
+			//
+			if ($ok) {
+				foreach($old_ar as $lg) {
+					if (is_file($dir.DS.$lg)) {
+						$a = $zip->addFile($dir.DS.$lg, $lg);
+						if ($a) {
+							csv_edihist_log('csv_log_archive: add to archive '.$lg );
+						} else {
+							csv_edihist_log('csv_log_archive: error archiving '.$lg );
+						}
+					}
+				}
+				$c = $zip->close();
+				if ($c) {
+					foreach($old_ar as $lg) {
+						$u = unlink($dir.DS.$lg, $lg);
+						if ($u) {
+							continue;
+						} else {
+							csv_edihist_log('csv_log_archive: error removing '.$lg);
+						}
+					}					
+				} else {
+					csv_edihist_log('csv_log_archive: error closing log file archive');
+				}	
+			} else {
+				csv_edihist_log('csv_log_manage: error failed to open '.$archname);
+			}
+		}
+		//
+		return json_encode($old_ar);	
+	}
 }
 
 
@@ -1805,7 +1823,7 @@ function csv_denied_by_file($filetype, $filename, $trace='') {
 		} else {
 			csv_edihist_log("csv_errors_by_file: file type did not match $filetype");
 		}
-		fclose($fh);
+		fclose($fh1);
 	}
 	//
 	return $ret_ar;

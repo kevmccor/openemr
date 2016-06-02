@@ -466,7 +466,7 @@ function edih_disp_x12trans() {
 			}
 		} elseif ( strpos('|f270|f271|f276|f277|f278', $ft) ) {
 			if ($fmt == 'seg') {
-				if ($trace && $rsptye) {
+				if ($trace && $rsptype) {
 					// 270|276|278|837 claim or request segments
 					// here the 'trace' is from trace or clm01
 					$fnar = csv_file_by_enctr($trace, $rsptype, $srchtype='ptidn' );
