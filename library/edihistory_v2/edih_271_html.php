@@ -23,7 +23,7 @@
  */
 
 //
-require_once("$srcdir/edihistory_v2/codes/edih_271_code_class.php");
+// require_once("$srcdir/edihistory_v2/codes/edih_271_code_class.php");
 //
 
 /**
@@ -485,6 +485,7 @@ function edih_271_transaction_html($obj271, $bht03) {
 		$str_html .= ($dep_nm1_html) ? $dep_nm1_html : "";
 		$str_html .= $dep_ref_html;
 		$str_html .= $dep_eb_html;
+		$str_html .= "<tr><td colspan=4>&nbsp;</td></tr>".PHP_EOL;
 		$str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
 	}
 	//
@@ -519,6 +520,8 @@ function edih_271_html($filename, $bht03='' ) {
 					$html_str .= "<p>edih_277_html: file parse error, envelope error</p>".PHP_EOL;
 					$html_str .= $obj271->edih_message();
 					return $html_str;
+				} else {
+					$html_str .= "<div id='accordion'>".PHP_EOL;
 				}
 					
 				foreach($env_ar['ST'] as $st) {
@@ -530,13 +533,11 @@ function edih_271_html($filename, $bht03='' ) {
 							break;
 						}
 					}						
-					// create table heading with $gs_date $gs_sender
-					$html_str .= "<h3>Claim Status <em>Date</em> $gs_date <em>Sender</em> $gs_sender</h3>".PHP_EOL;
-					$html_str .= "<div id='accordion'>".PHP_EOL;
+					//
 					// get each transaction
 					foreach($st['bht03'] as $bht) {
-						$html_str .= "<h3>$bht</h3>".PHP_EOL;
-						$html_str .= "<div id='$bht'>".PHP_EOL;
+						$html_str .= "<h3>$bht Benefit Eligibility</h3>".PHP_EOL;
+						$html_str .= "<div id='ac_$bht'>".PHP_EOL;
 						//
 						$html_str .= edih_271_transaction_html($obj271, $bht);
 						//

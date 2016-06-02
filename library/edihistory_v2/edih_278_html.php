@@ -50,7 +50,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 	$cd271 = new edih_271_codes($ds, $dr);
 	//
 	$cls ='';
-	$capstr = 'Services Review (Certification/Authorization)';
+	$capstr = 'Services Review (Cert/Auth)';
 	//
 	$hdr_html = "<table class='h278' columns=4><caption>$capstr</caption>";
 	$hdr_html .= "<thead><tr><th>Reference</th><th>Information</th><th colspan=2>$fn</th></tr></thead>".PHP_EOL;
@@ -764,6 +764,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 		$str_html .= ($dep_nm1_html) ? $dep_nm1_html : "";
 		$str_html .= ($evt_html) ? $evt_html : "";
 		$str_html .= ($svc_html) ? $svc_html : "";
+		$str_html .= "<tr><td colspan=4>&nbsp;</td></tr>".PHP_EOL;
 		$str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
 	}
 	//
@@ -802,6 +803,8 @@ function edih_278_html($filename, $bht03='' ) {
 					$html_str .= "<p>edih_277_html: file parse error, envelope error</p>".PHP_EOL;
 					$html_str .= $obj271->edih_message();
 					return $html_str;
+				} else {
+					$html_str .= "<div id='accordion'>".PHP_EOL;
 				}
 				foreach($env_ar['ST'] as $st) {
 					foreach($env_ar['GS'] as $gs){
@@ -812,13 +815,11 @@ function edih_278_html($filename, $bht03='' ) {
 							break;
 						}
 					}						
-					// create table heading with $gs_date $gs_sender
-					$html_str .= "<h3>Claim Status <em>Date</em> $gs_date <em>Source</em> $gs_sender</h3>".PHP_EOL;
-					$html_str .= "<div id='accordion'>".PHP_EOL;
+					//
 					// get each transaction
 					foreach($st['bht03'] as $bht) {
-						$html_str .= "<h3>$bht</h3>".PHP_EOL;
-						$html_str .= "<div id='ac_'.$bht'>".PHP_EOL;
+						$html_str .= "<h3>$bht Services Review</h3>".PHP_EOL;
+						$html_str .= "<div id='ac_$bht'>".PHP_EOL;
 						//
 						$html_str .= edih_278_transaction_html($obj278, $bht);
 						//
