@@ -1440,7 +1440,7 @@ function edih_835_html($filename, $trace='', $clm01='', $summary=false) {
 			}
 		} else {
 			csv_edihist_log("edih_835_transaction_html: Did not envelopes information for $fn");
-			$html_str .= "<p>Did not envelopes information for $fn</p>".PHP_EOL;
+			$html_str .= "<p>Did not get envelopes information for $fn</p>".PHP_EOL;
 			return $html_str;
 		}
 		if (is_array($trans_ar) && count($trans_ar)) {
@@ -1460,7 +1460,7 @@ function edih_835_html($filename, $trace='', $clm01='', $summary=false) {
 			}
 		} else {
 			csv_edihist_log("edih_835_transaction_html: Did not envelopes information for $fn");
-			$html_str .= "<p>Did not envelopes information for $fn</p>".PHP_EOL;
+			$html_str .= "<p>Did not get envelopes information for $fn</p>".PHP_EOL;
 			return $html_str;
 		}
 		if (is_array($trans_ar) && count($trans_ar)) {

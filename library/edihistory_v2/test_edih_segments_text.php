@@ -1017,21 +1017,26 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 		unset($trnsegs);	
 	}
 	//
-	// create a link to report version
-	if (strpos('|HI|HB|HN|HP', $ftype)) {
-		if ($bht03) {
-			$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&bht03=$bht03&fmt=htm'>Report</a>)";
-		} elseif ($trace) {
-			$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&trace=$claimidfmt=htm'>Report</a>)";
-		} elseif ($claimid) {
-			$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&pid=$claimid&fmt=htm'>Report</a>)";
-		} else {
-			$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&fmt=htm'>Report</a>)";
-		}
-	} else {
-		$hlnk = "";
-	}
-	//	
+	// create a link to report version -- for file only
+	// (too fancy - report is already available in csv tables and won't work from EDI File tab)
+	//if (strpos('|HI|HB|HN|HP', $ftype)) {
+		////if ($bht03) {
+			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&bht03=$bht03&fmt=htm'>Report</a>)";
+		////} elseif ($trace) {
+			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&trace=$claimidfmt=htm'>Report</a>)";
+		////} elseif ($claimid) {
+			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&pid=$claimid&fmt=htm'>Report</a>)";
+		////} else {
+			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&fmt=htm'>Report</a>)";
+		////}
+		//if (!$trace || !$claimid) {
+			//$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=file&fname=$fn&ftype=$ft&fmt=htm'>Report</a>)";
+		//}
+	//} else {
+		//$hlnk = "";
+	//}
+	//
+	$hlnk = "";	
 	$capstr = '';
 	$tbl_id = ($claimid) ? $claimid : $fn;
 	// 
