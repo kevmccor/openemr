@@ -154,6 +154,13 @@ function csv_edih_log_html($logname='') {
 	return $html_str;
 }
 
+
+/**
+ * list log files and store old logs in an archive
+ *
+ * @param bool
+ * @return array (json)
+ */
 function csv_log_manage($list=true) {
 	//
 	//$dir = dirname(__FILE__).DS.'log';
@@ -1161,12 +1168,12 @@ function csv_table_header($file_type, $csv_type) {
 			//case 'ebr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
 			//case 'ibr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
 			//
-			case 'f837': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
+			case 'f837': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner'); break;
 			case 'ta1': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Code'); break;
 			case 'f997': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'RspType', 'RejCt'); break;
-			case 'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
+			case 'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner'); break;
 			case 'f277': $hdr = array('Date', 'FileName', 'Control', 'Accept', 'AccAmt', 'Reject', 'RejAmt'); break;
-			case 'f270': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner'); break;
+			case 'f270': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner'); break;
 			case 'f271': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'Reject', 'Payer'); break;
 			case 'f278': $hdr = array('Date', 'FileName', 'Control', 'TrnCount', 'Auth', 'Payer'); break;
 			case 'f835': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Claim_ct', 'Denied', 'Payer'); break;

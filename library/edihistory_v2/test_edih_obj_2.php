@@ -568,7 +568,8 @@ class edih_x12_file {
 				$seg_ar = explode($de, $seg_text);
 				$gs_start = strval($i-1);
 				$gsn = $seg_ar[6];
-				// cannot index on $gsn due to concatenated ISA envelopes
+				// GS06 could be used to id 997/999 response, if truly unique
+				// cannot index on $gsn due to concatenated ISA envelopes and non-unique
 				$gs_ct = isset($env_ar['GS']) ? count($env_ar['GS']) : 0;
 				//
 				$env_ar['GS'][$gs_ct]['start'] = $gs_start;
