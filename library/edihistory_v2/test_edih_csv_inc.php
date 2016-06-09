@@ -133,7 +133,7 @@ function csv_edihist_log ( $msg_str ) {
  *
  * @return string
  */
-function csv_edih_log_html($logname='') {
+function csv_log_html($logname='') {
 	$html_str = "<div class='filetext'>".PHP_EOL."<ol class='logview'>".PHP_EOL;
     $fp = csv_edih_basedir().DS.'log'.DS.$logname;
     if ( is_file($fp) ) {
@@ -240,11 +240,11 @@ function csv_log_manage($list=true) {
 				$c = $zip->close();
 				if ($c) {
 					foreach($old_ar as $lg) {
-						$u = unlink($dir.DS.$lg, $lg);
+						$u = unlink($dir.DS.$lg);
 						if ($u) {
 							continue;
 						} else {
-							csv_edihist_log('csv_log_archive: error removing '.$lg);
+							csv_edihist_log('csv_log_archive: error removing '.$dir.DS.$lg);
 						}
 					}					
 				} else {
@@ -254,9 +254,9 @@ function csv_log_manage($list=true) {
 				csv_edihist_log('csv_log_manage: error failed to open '.$archname);
 			}
 		}
-		//
-		return json_encode($old_ar);	
 	}
+	//
+	return json_encode($old_ar);	
 }
 
 
@@ -1704,33 +1704,34 @@ function csv_file_by_controlnum($type, $control_num) {
  * @param string	 to type (default is f835)
  * @return string    file name or empty string
  */
-function csv_file_by_trace($trace, $from_type='f835', $to_type='f835') {
+function csv_file_by_trace($trace, $from_type='f835', $to_type='f837') {
 	// get the file referenced by the trace value
 	//
 	$ft = ($from_type) ? csv_file_type($from_type) : '';
 	$tt = ($to_type) ? csv_file_type($to_type) : '';
 	$fn = '';
-	$csv_type = 'file';
+	$csv_type = '';
 	$type = '';
 	$search = array();
-	$csv_type = '';
 	//
 	csv_edihist_log("csv_file_by_trace: $trace from  $ft to $tt");
 	//
-	// $search_ar should have keys ['s_val']['s_col'] array(['r_cols'][])
-	//    like "batch', 'claim, array(9, '0024', array(1, 2, 7))
-	//$csv_hd_ar['batch']['file'] = array('time', 'file_name', 'control_num', 'claims', 'x12_partner', 'x12_version');
-	//'|f270|f271|f276|f277|f278', $ft
-	if ($ft == 'f835' && $tt == 'f835') {
+	// $search_ar should have keys ['s_val']['s_col'] array(['r_cols'])
+	//    like "f837', 'claim, array(9, '0024', array(1, 2, 7))
+	//
+	if ($ft == 'f835') {
+		// trace payment to status or claim
 		$search = array('s_val'=>$trace, 's_col'=>3, 'r_cols'=>array(1));
-		$type = 'f835';
+		$type = $tt;
 		$csv_type = 'file';
 	} elseif ($ft == 'f997') {
-		$icn = (strlen($trace) >= 9) ? substr($trace, 0, 9) : $trace;
+		// trace ACK to batch file
+		$icn = (is_numeric($trace) && strlen($trace) >= 9) ? substr($trace, 0, 9) : $trace;
 		$search = array('s_val'=>$icn, 's_col'=>2, 'r_cols'=>array(1));
 		$type = $tt;
 		$csv_type = 'file';
 	} elseif ($ft == 'f277') {
+		// trace status to status req or claim
 		if ($tt == 'f276') {
 			$search = array('s_val'=>$trace, 's_col'=>7, 'r_cols'=>'All');
 			$type = $tt;
@@ -1742,12 +1743,14 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f835') {
 			$csv_type = 'claim';
 		}
 	} elseif ($ft == 'f271') {
+		// trace benefit to benefit req
 		if ($tt == 'f270') {
 			$search = array('s_val'=>$trace, 's_col'=>2, 'r_cols'=>'All');
 			$type = $tt;
 			$csv_type = 'claim';
 		}
 	} elseif ($ft == 'f278') {
+		// trace auth to auth req
 		$search = array('s_val'=>$trace, 's_col'=>2, 'r_cols'=>'All');
 		$type = 'f278';
 		$csv_type = 'claim';
@@ -1757,7 +1760,7 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f835') {
 	}
 	//
 	if ($type && $csv_type && $search) {
-		$result = csv_search_record($type, $csv_type, $search, "1");
+		$result = csv_search_record($type, $csv_type, $search, false);
 		if (is_array($result) && count($result)) {
 			if ($ft == 'f278') {
 				foreach($result as $r) {
@@ -1772,6 +1775,8 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f835') {
 				$fn = $result[0][0];
 			}
 		}
+	} else {
+		csv_edihist_log("csv_file_by_trace: error type $type csv $csv_type for trace $trace $from_type $to_type");
 	}
 	return $fn;
 }

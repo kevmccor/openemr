@@ -201,7 +201,10 @@ function edih_list_denied_claims($filetype, $filename, $trace='') {
 	$row_ar = array();
 	//
 	$ft = csv_file_type($filetype);
-	if (strpos('|f997|f271|f277|f835', $ft)) {
+	if ($ft == 'f997') {
+		$str_html = edih_997_error($filename);
+		return $str_html;
+	} elseif (strpos('|f271|f277|f835', $ft)) {
 		$row_ar = csv_denied_by_file($ft, $filename, $trace);
 	} else {
 		$str_html .= "Invalid file type $filetype for denied claim search<br />";
@@ -267,19 +270,6 @@ function edih_claim_history($encounter) {
 	// use function csv_table_select_list() so that only
 	// existing csv tables are queried
 	$tbl2 = csv_table_select_list('array');
-	// debug
-	$dbg = '';
-	foreach($tbl2 as $key=>$val) {
-		$dbg .= "$key : ";
-		if (is_array($val)) {
-			foreach($val as $k=>$v) {
-				$dbg .= "$k=>$v ";
-			}
-		} else {
-			$dbg .= "$val ";
-		}
-	}
-	csv_edihist_log("edih_claim_history: tbl2 $dbg");
 	//
 	$rtypes = array();
 	if (is_array($tbl2['claims']) && count($tbl2['claims']) ) {
@@ -288,20 +278,6 @@ function edih_claim_history($encounter) {
 		csv_edihist_log("csv_claim_history: failed to get csv table names");
 		return "failed to get csv table names";
 	}
-	// debug
-	$dbg = '';
-	foreach($rtypes as $key=>$val) {
-		$dbg .= "$key : ";
-		if (is_array($val)) {
-			foreach($val as $k=>$v) {
-				$dbg .= "$k=>$v ";
-			}
-		} else {
-			$dbg .= "$val ";
-		}
-	}
-	csv_edihist_log("edih_claim_history: rtypes $dbg");
-	//
 	//
 	$ch_html .= "<table class='clmhist' columns=4><caption>Encounter Record for $e</caption>";
 	$ch_html .= "<tbody>".PHP_EOL;

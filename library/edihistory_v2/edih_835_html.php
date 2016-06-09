@@ -721,7 +721,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 			$str_html .= "<tr class='$cls'><td colspan=4><em>Remarks</em></td></tr>".PHP_EOL;
 			foreach($moa_ar as $moa) {
 				$moar = $cd835->get_835_code('RARC', $moa);
-				$str_html .= "<tr class='$cls'><td>$moa</td><td colspan=3>$moar</td></tr>".PHP_EOL;
+				$str_html .= "<tr class='$cls'><td style='text-align: center;'>$moa</td><td colspan=3>$moar</td></tr>".PHP_EOL;
 			}
 		}
 		if (count($lq_ar)) {
@@ -729,7 +729,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 			$str_html .= ($rarc_str) ? "<tr class='$cls'><td colspan=4>$rarc_str</td></tr>".PHP_EOL : "";
 			foreach($lq_ar as $lq) {
 				$lqr = $cd835->get_835_code('RARC', $lq);
-				$str_html .= "<tr class='$cls'><td>$lq</td><td colspan=3>$lqr</td></tr>".PHP_EOL;
+				$str_html .= "<tr class='$cls'><td style='text-align: center;'>$lq</td><td colspan=3>$lqr</td></tr>".PHP_EOL;
 			}
 		}
 		// bottom border
@@ -1379,7 +1379,7 @@ function edih_835_html($filename, $trace='', $clm01='', $summary=false) {
 	$html_str = '';
 	if (trim($filename)) {
 		$obj835 = csv_check_x12_obj($filename, 'f835');
-        if ('edih_x12_file' == get_class($obj835)) {
+        if ($obj835 && 'edih_x12_file' == get_class($obj835)) {
 			$fn = $obj835->edih_filename();
 			$delims = $obj835->edih_delimiters();
 			$env_ar = $obj835->edih_x12_envelopes();
@@ -1394,7 +1394,7 @@ function edih_835_html($filename, $trace='', $clm01='', $summary=false) {
 		}
 	} else {
 		$html_str .= "Error in file name or file parsing <br />".PHP_EOL;
-		csv_edihist_log("edih_835_html: error in handling file $filename");
+		csv_edihist_log("edih_835_html: error in parsing file $filename");
 		return $html_str;
 	}
 	if ( $de && $ds ) {

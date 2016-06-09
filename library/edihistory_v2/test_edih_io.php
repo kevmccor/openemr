@@ -54,7 +54,7 @@ function edih_php_inivals() {
 /**
  * display the log file selected
  * 
- * @uses csv_edih_log_html()
+ * @uses csv_log_html()
  * @return string
  */
 function edih_disp_log() {
@@ -62,7 +62,7 @@ function edih_disp_log() {
 	if ( isset($_GET['log_select']) ) {
 		$lfn = filter_input(INPUT_GET, 'log_select', FILTER_SANITIZE_STRING);
 	} 
-	$str_html = csv_edih_log_html($lfn);
+	$str_html = csv_log_html($lfn);
 	return $str_html;
 }
 
@@ -430,10 +430,12 @@ function edih_disp_x12trans() {
 	//$str_htm .= "<p>edih_disp_x12trans values: <br>".PHP_EOL;
 	//$str_htm .= "qs $qs fmt $fmt fn $fn ft $ft icn $icn rsptype $rsptype clm01 $clm01 trace $trace bht03 $bht03 err $err summary $summary</p>".PHP_EOL;
 	//
+	if ($ft) { $ft = csv_file_type($ft); }
+	//
 	if ($qs == 'claim') {
 		if ($ft == 'f997') {
 			if ($trace && $rsptype){
-				$fnar = csv_file_by_enctr($trace, $rsptype);
+				$fnar = csv_file_by_trace($trace, 'f997', $rsptype);
 				if (is_array($fnar) && count($fnar)) {
 					foreach($fnar as $fa) {
 						$fname = $fa['FileName'];
@@ -445,21 +447,14 @@ function edih_disp_x12trans() {
 			}
 		} elseif ($ft == 'f837') {
 			// either transaction or file
-			// file will open new window
-			//$str_htm .= ($claim) ? '' : edih_html_heading('eradisplay');
 			$str_htm .= edih_display_text($fn, $ft, $clm01);
-			//$str_htm .= ($claim) ? '' : "</body>".PHP_EOL."</html>".PHP_EOL;
 		} elseif ($ft == 'f835') {
 			if ($fmt == 'seg') {
 				// either transaction or file
-				//$str_htm .= ($clm01) ? '' : edih_html_heading('eradisplay');
 				$str_htm .= edih_display_text($fn, $ft, $clm01);
-				//$str_htm .= ($clm01) ? '' : "</body>".PHP_EOL."</html>".PHP_EOL;
 			} elseif ($trace) {
 				// the check trace
-				//$str_htm .= ($trace) ? '' : edih_html_heading('eradisplay');
 				$str_htm .= edih_835_html($fn, $trace);
-				//$str_htm .= ($trace) ? '' : "</body>".PHP_EOL."</html>".PHP_EOL;
 			} elseif ($clm01) {
 				// this claim payment
 				$str_htm .= edih_835_html($fn, '', $clm01, $summary);
@@ -469,12 +464,15 @@ function edih_disp_x12trans() {
 				if ($trace && $rsptype) {
 					// 270|276|278|837 claim or request segments
 					// here the 'trace' is from trace or clm01
-					$fnar = csv_file_by_enctr($trace, $rsptype, $srchtype='ptidn' );
-					if (is_array($fnar) && count($fnar)) {
-						foreach($fnar as $fa) {
-							$fname = $fa['FileName'];
-							$str_htm .= edih_display_text($fname, $rsptype, $trace);
-						}
+					//$fnar = csv_file_by_enctr($trace, $rsptype, $srchtype='ptidn' );
+					//if (is_array($fnar) && count($fnar)) {
+						//foreach($fnar as $fa) {
+							//$fname = $fa['FileName'];
+							//$str_htm .= edih_display_text($fname, $rsptype, $trace);
+						//}
+					$fname = csv_file_by_trace($trace, $ft, $rsptype);
+					if ($fname) {
+						$str_htm .= edih_display_text($fname, $rsptype, $trace);
 					} else {
 						$str_htm .= "<p>Did not find $trace in type $rsptye csv_claims table</p>".PHP_EOL;
 					}

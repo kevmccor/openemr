@@ -39,7 +39,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <head>
 	<title><?php echo xlt("edi history"); ?></title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <!-- jQuery-ui and datatables  -->
+	<!-- OpenEMR css -->
+	<link rel="stylesheet" href="<?php echo $web_root?>/interface/themes/style_oemr.css" />
+    <!-- jQuery-ui and datatables -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/css/custom-theme/jquery-ui-1.10.4.custom.min.css" />
 <!--
     <link rel="stylesheet" href="<?php echo $web_root?>/library/js/DataTables-1.10.11/DataTables-1.10.11/css/jquery.dataTables_themeroller.css" />
@@ -56,14 +58,15 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     <!-- edi_history css -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
     <link rel="stylesheet" href="<?php echo $web_root?>/library/dynarch_calendar.css" type="text/css" />
-	
+	<!-- OpenEMR Calendar -->
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar_setup.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
     
     <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 </head>
-<body>
+<!-- style for OpenEMR color -->
+<body style='background-color:#fefdcf'>
 
 <!-- Begin tabs section  class="Clear"-->
 <div id="tabs" style="visibility:hidden">
@@ -294,7 +297,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 						<option value="6m">6 months</option>
 						<option value="3m">3 months</option>
 					</select>
-					<label for="archivereport"><?php echo xlt("File Information"); ?>:</label>					
+					<label for="archivereport"><?php echo xlt("Report"); ?>:</label>					
 					<input type="button" id="archiverpt" name="archivereport" form="formarchive" value="<?php echo xla("Report"); ?>" />
 					<input type="hidden" name="ArchiveRequest" form="formarchive" value="requested" />
 					<label for="archivesbmt"><?php echo xlt("Archive"); ?>:</label>
@@ -303,11 +306,11 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 					</form>
 				</td>
 				<td><form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
-					<fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
+					<fieldset><legend><?php echo xlt("Restore Archive"); ?></legend>
 					<label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
 					<select id="archrestoresel" name="archrestore_sel"> </select>
 					<input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
-					<label for="arch_restore"><?php echo xlt("Restore Archive"); ?>:</label>					
+					<label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>					
 					<input type="submit" id="archrestore" name="arch_restore" form="formarchrestore" value=<?php echo xla("Restore"); ?> />
 					</fieldset>
 					</form>
@@ -321,14 +324,20 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 </div> 
 <!-- End tabs section -->
 <!--  -->
-<script src="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js" type="text/javascript"></script>
+<script src="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/js/jquery-1.10.2.min.js" type="text/javascript"></script>
 <script src="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
 <script src="<?php echo $web_root?>/library/js/DataTables-1.10.11/datatables.min.js"></script>
 <script src="<?php echo $web_root?>/library/js/DataTables-1.10.11/DataTables-1.10.11/datatables.jqueryui.min.js"></script>
 
 <!-- -->
 <script src="<?php echo $web_root?>library/js/DataTables-1.10.11/Scroller-1.4.1/js/dataTables.scroller.min.js"></script>
-  
+<!-- 
+<script
+	  src="https://code.jquery.com/jquery-1.10.2.min.js"
+	  integrity="sha256-C6CB9UYIS9UJeqinPHWTHVqh/E1uhG5Twh+Y5qFQmYg="
+	  crossorigin="anonymous">
+</script>
+--> 
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -336,6 +345,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
         jQuery("#tabs").tabs();
         jQuery("#tabs").tabs().css('visibility','visible');
         //
+        jQuery("#fileupl1").hide();
+		jQuery("#fileupl2").hide();
         // set some button disabled
         jQuery('#processfiles').prop('disabled', true);
         jQuery('#archivesubmit').prop('disabled', true);
@@ -500,6 +511,10 @@ $.ui.dialog.prototype._init = function() {
         $(this).hide();
         dialog_element.open();
     });
+
+    // z-index of dialog
+    $( ".selector" ).on( "dialogfocus", function( event, ui ) {} );
+    $( ".selector" ).dialog( "moveToTop" );
     
 'a.rsp .sub .seg'
     $(function(){
@@ -520,29 +535,42 @@ function(e){ jQuery(this).addClass('outlinetr'); },
 function(e){ jQuery(this).removeClass('outlinetr'); }
 );
 */
-/** alternative to bindlinks function  **** */
-	var dialogOpts = {appendTo: "#tabs", draggable: true, height: '300', width: '560', resizable: true, title: 'Transaction Detail'  };
+/** alternative to bindlinks function
+    control z-index by designating to which div the dialog is appended
+    dialogs appended to div#tabs will be on top (appendTo as option also) appendTo: "#tabs", 
+**** */
+	var dialogOpts = {
+		draggable: true,
+		height: '300',
+		width: '560',
+		resizable: true,
+		title: 'Transaction Detail',
+		close: function(event, ui)
+        {
+            $(this).dialog("close");
+            $(this).remove();
+        }
+    };
 			
 	jQuery('div#tbcsvhist').on('click', 'a', function(e) {
 		e.preventDefault();
-		jQuery('<div/>', {'class':'myDlgClass', 'id':'link-'+(jQuery(this).index()+1)})
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dialogOpts);
 	});
 	
 	jQuery('div#tbsub').on('click', 'a', function(e) {
 		e.preventDefault();
-		jQuery('<div/>', {'class':'myDlgClass', 'id':'link-'+(jQuery(this).index()+1)})
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dialogOpts);
 	});
-
-/* *** not for this div
-	jQuery('div#x12rsp').on('click', 'a', function(e) {
+	
+	jQuery('#rsp #sub #seg').on('click', 'a', function(e) {
 		e.preventDefault();
-		var x12rptOpts = {appendTo: "#tabs", draggable: true, width: '640', resizable: true, title: 'Report'  };
-		jQuery('<div/>', {'class':'myDlgClass', 'id':'link-'+(jQuery(this).index()+1)})
-	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(x12rptOpts);
+		var dlgOpts = {draggable: true, height: '300', width: '560', resizable: true, title: 'Report' };
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dlgOpts);
 	});
-* ***/	
+
 /*
 // **** script ****
 // bindlinks('#processed', 'click', '.rsp', 'click', '#rsp', '<?php echo xla("Response"); ?>'),
@@ -552,27 +580,32 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
          jQuery(dElem).on(dEvt, cClass, cEvt, function(e) {
             e.preventDefault();
             //
+            jQuery.get(jQuery(this).attr('href'), function(data){ jQuery(cElem).html(data); });
+            //
             var statDialog = jQuery(cElem).dialog({
-				appendTo: "#tabs",
+				appendTo: dElem, //"#tabs",
                 autoOpen: false,
 				resizable: true,
                 draggable: true,
                 modal: false,
                 title: mytitle, //jQuery(this).attr('title'),
                 height: 360,
-                width: 560           
+                width: 600,
+                close: function(event, ui) {
+		            //$(this).dialog("close");
+		            //$(this).remove();
+		            $(this).empty();
+		        }           
             });
             //
-            if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
-            jQuery.get(jQuery(this).attr('href'), function(data){ jQuery(cElem).html(data); })
+            //if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
             statDialog.dialog('open');
-            jQuery(dElem).tooltip();
         });
     }
 
 /* ******************* end document ready ***********/
 /* ****
- * jQuery-UI accordian -- for 27x file html
+ * jQuery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
  */
     function apply_accordion() {
 	    jQuery( "#accordion" )
@@ -697,7 +730,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 						jQuery('#fileupl1').html('');
 						jQuery('#fileupl1').hide();
 						jQuery('#fileupl2').html('');
-						jQuery('#fileupl1').hide();
+						jQuery('#fileupl2').hide();
 						//
 						jQuery('#processed').html(data);
 						jQuery('#processed').show();
@@ -739,7 +772,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 		}
 	   return false;
 	}
-/* *** use .hover event
+/* *** use .hover event 
 jQuery('#fileupl2 > li').hover(
 	var fl1 = jQuery('#fileupl1').find('li');
 	var fname = jQuery(this).text();
@@ -752,7 +785,8 @@ jQuery('#fileupl1 > li').hover(
 	function(e){ jQuery(this).css('font-weight', 'bolder'); if (fl2.length) { outlineMatch(fl2, fname); }; },
 	function(e){ jQuery(this).css('font-weight', 'normal'); if (fl2.length) { outlineMatch(fl2, 'none'); }; }
 );
-*/
+ */
+/* *** do not use .hover event   */
 	jQuery('#fileupl2').on('mouseenter', 'li', function(event){
 		var fl1 = jQuery('#fileupl1').find('li');
 		var fname = jQuery(this).text();
@@ -781,6 +815,7 @@ jQuery('#fileupl1 > li').hover(
 			outlineMatch(fl2, 'none');
 		}			
 	});
+
 /* *****  ==== end file upload lists  match uploaded to selected
 /* ****************************
  * ===  end upload multiple files section
@@ -846,7 +881,7 @@ jQuery('#fileupl1 > li').hover(
 		jQuery('#tbcsvhist').html('');
 		var chenctr = jQuery('#histenctr').value;
 		var encrecord = jQuery('#tbcsvhist').dialog({
-					buttons: [{ text: "Close", click: function() { jQuery(this).dialog("close"); } }], 
+					appendTo: '#csvdatatables',
 					modal: false,
 					title: "<?php echo xla("Encounter EDI Record"); ?>",
 					height: 416,
@@ -859,9 +894,9 @@ jQuery('#fileupl1 > li').hover(
 			dataType: "html",
 			success: [
 				function(data){ jQuery('#tbcsvhist').html(jQuery.trim(data)); },
-				bindlinks('#tbcsvhist', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
-				bindlinks('#tbcsvhist', 'click', '.sub', 'click', '#tbsub', '<?php echo xla("Submitted"); ?>'),
-				bindlinks('#tbcsvhist', 'click', '.seg', 'click', '#tbseg', '<?php echo xla("EDI Segments"); ?>'),
+				//bindlinks('#tbcsvhist', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
+				//bindlinks('#tbcsvhist', 'click', '.sub', 'click', '#tbsub', '<?php echo xla("Submitted"); ?>'),
+				//bindlinks('#tbcsvhist', 'click', '.seg', 'click', '#tbseg', '<?php echo xla("EDI Segments"); ?>'),
 				encrecord.dialog('open')
 			]				
 		});
@@ -941,9 +976,8 @@ jQuery('#fileupl1 > li').hover(
             url: jQuery('#formlog').attr('action'), 
             data: { archivelog: 'yes' },
             dataType: "json",
-
             success: function(data) {
-				var str = str + "<ul id='logarchlist'>";
+				var str = "<p>Archive Log Files</p><ul id='logarchlist'>";
 				var fct = data.length;
 				if (fct == 0) {
 					str = str + "<li>No logs older than 7 days</li>";
@@ -952,7 +986,7 @@ jQuery('#fileupl1 > li').hover(
 						str = str + "<li>" + data[i] + "</li>";
 					}
 				};
-				str = str + '</ul>';
+				str = str + "</ul>";
 				jQuery('#notesrsp').hide();
 		        jQuery('#logrsp').html('');
 		        jQuery('#logrsp').html(str);

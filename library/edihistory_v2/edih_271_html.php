@@ -79,9 +79,7 @@ function edih_271_transaction_html($obj271, $bht03) {
 			$var = '';
 			$rej_reason = ''; 
 			$follow = '';
-			$addr = ''; 
-			// debug
-			// echo "$i loop: $loopid Segment: $seg".PHP_EOL;
+			$addr = '';
 			//
 			if ( strncmp('BHT'.$de, $seg, 4) === 0 ) {
 				$loopid = 'Heading';
@@ -496,7 +494,7 @@ function edih_271_transaction_html($obj271, $bht03) {
  * create a display for an individual claim status response	
  * 
  * @uses csv_check_x12_obj()
- * @uses edih_277_transaction_html()
+ * @uses edih_271_transaction_html()
  * 
  * @param string  $filename the filename
  * @param string  $bht03 identifier from 837 CLM or BHT segment
@@ -512,12 +510,12 @@ function edih_271_html($filename, $bht03='' ) {
         if ( 'edih_x12_file' == get_class($obj271) ) {
 			if ($bht03) {
 				// particular transaction
-				$html_str .= edih_277_transaction_html($obj271, $bht03);
+				$html_str .= edih_271_transaction_html($obj271, $bht03);
 			} else {
 				// file contents
 				$env_ar = $obj271->edih_envelopes();
 				if (!isset($env_ar['ST'])) {
-					$html_str .= "<p>edih_277_html: file parse error, envelope error</p>".PHP_EOL;
+					$html_str .= "<p>edih_271_html: file parse error, envelope error</p>".PHP_EOL;
 					$html_str .= $obj271->edih_message();
 					return $html_str;
 				} else {
@@ -548,11 +546,11 @@ function edih_271_html($filename, $bht03='' ) {
 			}
 					
 		} else {
-			$html_str .= "<p>edih_277_html: file parse error</p>".PHP_EOL;
+			$html_str .= "<p>edih_271_html: file parse error</p>".PHP_EOL;
 		}
 	} else {
-		csv_edihist_log ("edih_271_html: called with no file arguments");
-		$html_str .= "Error, no file given<br />".PHP_EOL;
+		csv_edihist_log ("edih_271_html: error in file arguments");
+		$html_str .= "Error: invalid file name<br />".PHP_EOL;
 		return $html_str;
 	}
 	//

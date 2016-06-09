@@ -61,7 +61,8 @@ require_once("$srcdir/edihistory_v2/test_edih_io.php");         //dirname(__FILE
 require_once("$srcdir/edihistory_v2/test_edih_obj_2.php"); 
 require_once("$srcdir/edihistory_v2/test_edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php"); 
 require_once("$srcdir/edihistory_v2/test_edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php"); 
-require_once("$srcdir/edihistory_v2/test_edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php"); 
+require_once("$srcdir/edihistory_v2/test_edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php");
+require_once("$srcdir/edihistory_v2/test_edih_997_error.php");
 require_once("$srcdir/edihistory_v2/test_edih_segments_text.php");
 require_once("$srcdir/edihistory_v2/test_edih_archive.php");        //dirname(__FILE__) . "/edihist/ibr_batch_read.php");
 require_once("$srcdir/edihistory_v2/edih_271_html.php");          //dirname(__FILE__) . "/edihist/ibr_ack_read.php");

@@ -882,7 +882,7 @@ function edih_rsp_st_match($rsp_trace, $file_type) {
 	$btfn = ( count($batch_srch) == 2 ) ? $batch_srch[0] : '';
 	$bfullpath = ($btfn) ? csv_check_filepath($btfn, $ft) : '';
 	$batch_x12_obj = csv_check_x12_obj($btfn, $ft);
-	if ('edih_x12_file' == get_class($batch_x12_obj)) {
+	if ($batch_x12_obj && ('edih_x12_file' == get_class($batch_x12_obj))) {
 		$env_ar = $batch_x12_obj->edih_envelopes();
 		if ( isset($env_ar['ST']) ) {
 			$arg_ar = array('ISA13'=>$bticn, 'ST02'=>$stn);
@@ -894,7 +894,7 @@ function edih_rsp_st_match($rsp_trace, $file_type) {
 		}
 	} else {
 		//
-		csv_edihist_log('edih_rsp_st_match() failed to open matching file '.$bicn);
+		csv_edihist_log('edih_rsp_st_match() failed to open matching file '.$bticn);
 		return $info_ar;
 	}
 	if (!$segs_ar) {

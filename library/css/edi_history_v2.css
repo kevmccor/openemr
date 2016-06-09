@@ -71,7 +71,18 @@
  * DataTables
  * 
  */
- div#tbrsp {
+a {
+    color: #0000cc;
+    text-decoration: none;
+}
+a:visited {
+    color: #0000cc;
+}
+a:hover {
+    color: #ff5555;
+}
+
+div#tbrsp {
 	height: 100%;
 }
 
@@ -80,46 +91,45 @@
 	border-width: 2px;
 }
 
-/* **** upload lists **  */
+/* **** upload lists box-sizing: content-box; **  */
 div#fileupl1 {
 	float: left;
 	min-width: 40ch;
 	max-width: 50%;
 	font-size: medium;
-	margin: 2em;
+	margin: 2em 0 0 0 ;
+	padding: 1em;
 	vertical-align: top;
 	background-color: #CAD8DA;
-	box-sizing: content-box;
+	border-style: solid;
 	border-width: 6px, 2px, 6px, 2px;
 	border-color: #CAD8DA;
-	border-collapse: separate;
 }		
 div#fileupl2 {
 	float: left;
 	min-width: 40ch;
 	max-width: 50%;
 	font-size: medium;
-	margin: 2em;
+	margin: 2em 0 0 0 ;
+	padding: 1em;
 	vertical-align: top;
 	background-color: #ABF0CB;
-	box-sizing: content-box;
+	border-style: solid;
 	border-width: 6px, 2px, 6px, 2px;
 	border-color: #ABF0CB;
-	border-collapse: separate;
 }
 ul.fupl { list-style-type: none;
   text-align: left;
   font-size: medium;
 }
-/* ***** process class dl.process*******/
+/* ***** process class dl.process  padding: 10px; border: none; margin: 2px;*******/
 div#processed {
     max-width: fit-contents;
-    padding: 10px;
-    border: none;
-    margin: 2px;
     background-color: #B7CBD0;
 }
+
 div#processed * { box-sizing: border-box; }
+
 h2.prcs {
     font-size: 1.2em;
     margin: 1em;
@@ -134,7 +144,6 @@ div#processed dl {
     margin-bottom: .5em;
     margin-left: 2;
     margin-right: 2;
-    background-color: #C4D7DC;
 }
 div#processed dt {
     margin-top: .5em;`														
@@ -143,7 +152,6 @@ div#processed dt {
     margin-right: 2;
     padding: 2px 4px 2px 4px;
     min-width: 50%;
-    background-color: #C4D7DC;
 }
 div#processed dd {
     margin-top: 3px;
@@ -152,7 +160,6 @@ div#processed dd {
     margin-right: 2;
     padding: 2px 4px 2px 4px;
     min-width: 50%;
-    background-color: #C4D7DC;
 }
 } 
 dl.f837 { background-color: #B5D4CC; }
@@ -203,9 +210,9 @@ dl.f278 > dt.feven { background-color: #DAEEF1; }
 dl.f278 > dd.codd { background-color: #CBE0E3; }
 dl.f278 > dd.ceven { background-color: #C9E7EC; }
 
-
+/*  width: 940px;  */
 div#tblshow {
-   width: 860px;
+   width: 896px;
    max-width: fit-content;
 }
 /* 
@@ -233,7 +240,7 @@ table.clmhist tr.chhead {
     font-size: medium;
 	background-color: #7FCBA9;
 }
-
+table.clmhist td {padding: 2px; }
 table.clmhist tr.ch278 td { background-color: #CAEFDC; }
 table.clmhist tr.ch270 td { background-color: #D0E1DE; }
 table.clmhist tr.ch271 td { background-color: #C8EAE3; }
@@ -242,7 +249,25 @@ table.clmhist tr.ch997 td { background-color: #E2CCBD; }
 table.clmhist tr.ch277 td { background-color: #E1EFF2; }
 table.clmhist tr.ch835 td { background-color: #D4EDCE; } 
 
-
+table#csvTable td { color: #000000; }
+table#csvTable td.reject { color: #A40808; }
+/* ***** f837 class *******/
+table#csvTable { background-color: #D8DADB; }
+table#csvTable tr.odd td { background-color: #DBE4DC; }
+table#csvTable tr.even td { background-color: #DADADA; }
+/* ***** 999/997 error report*******/
+p.rpt997 {
+    font-size: medium;
+    margin: 8px;
+    border: 2px solid #D6D6D6; 
+    background-color: #CAE2F2;
+}
+p.err997 {
+    font-size: medium;
+    margin: 8px;
+    border: 2px solid #D6D6D6; 
+    background-color: #CAEAF2;
+}
 /* ***** process class table.process*******/
 div#processed table {
 	font-size: medium;
@@ -251,7 +276,8 @@ div#processed table {
 	border: 1px solid #000;
 	vertical-align: middle;
 	empty-cells: show; 
-}  
+}
+/*  div#processed table  */
 div#processed table caption {
     padding: 2px 10px;
     text-align: left;
@@ -457,7 +483,7 @@ table.segtxt {
 	}
 table.segtxt hr > td { text-align: center; }
 table.segtxt caption {
-	background-color: #F2EFDE; 
+	background-color: #F2EFDE !important;
 	font-family: "Dejavu Sans", "Trebuchet MS", "Liberation Sans", sans-serif;
 	font-size: 1.2em;
 	text-align: left;
@@ -642,7 +668,7 @@ div.filetext {
 
 div.filetext pre,code,kbd,samp,tt {
   font-family: monospace,monospace;
-  font-size: 1em;
+  font-size: medium;
   padding:1em 0;
   margin-left:0.9em;
   margin-bottom:2em;
@@ -656,9 +682,8 @@ div.filetext code {
 }
 
 div.filetext ol {
-	font-family: sans-serif;
-	font-style: italic;
-	font-size: 1em;
+	font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
+	font-size: medium;
 	background-color: #FCDE93;
 	width: auto;
 }
@@ -667,9 +692,9 @@ div.filetext li {
     padding-left: 0.2em;
     margin-top: 0em; 
 	margin-right: 1em; 
-	margin-left: 2em; 
+	margin-left: 1em; 
 	margin-bottom: 0.1em;
-	background-color: #F5E8C7;
+	background-color: #F1E8D1;
 	
 }
 
@@ -685,7 +710,7 @@ div.filetext ol p {
 }
 
 div.filetext table.batchst caption {
-    font-family: sans-serif;
+    font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
     padding: 4px;
     text-align: left;
     font-weight: bold;
@@ -693,20 +718,20 @@ div.filetext table.batchst caption {
 }
 
 div.filetext table.batchst thead {
-  font-family: monospace,monospace;
+  font-family: monospace, monospace;
   font-size: medium;
   border-width: thin;
 }
 
 div.filetext table.batchst tbody {
-  font-family: monospace,monospace;
+  font-family: monospace, monospace;
   font-size: medium;
   border-width: thin;
   width: auto;
 }
 
 div.filetext table.batchst td.btloop {
-  font-family: sans-serif;
+  font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
   font-style: italic;
   text-align: center; 
   padding: 1px 3px;

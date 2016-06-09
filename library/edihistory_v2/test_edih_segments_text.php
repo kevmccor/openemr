@@ -130,14 +130,14 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 			$stkey = (int)$key;
 			$stsegct = 1;
 			$stn = explode($de, $seg)[2];
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			continue;
 		}
 		//
 		if ( strncmp('BHT'.$de, $seg, 4) === 0 ) {
 			$loopid = 'Begin';
 			$stsegct = 2;
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			continue;
 		}
 		//			
@@ -155,41 +155,41 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 				csv_edihist_log('edih_837_text: HL has no level '.$seg);
 			}
 			//
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			continue;	
 		}
 		//	
 		if ( strncmp('CLM'.$de, $seg, 4) === 0 ) {
 			$loopid = '2300'; $title = 'Claim';
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;			
 		}
 		//		
 		if ( strncmp('SBR'.$de, $seg, 4) === 0 ) {
 			$loopid = '2320'; $title = 'Other Subscriber';
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;			
 		}
 		//		
 		if ( strncmp('LX'.$de, $seg, 3) === 0 ) {
 			$loopid = '2400'; $title = 'Svc Line Number';
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;			
 		}
 		//		
 		if ( strncmp('LIN'.$de, $seg, 4) === 0 ) {
 			$loopid = '2410'; $title = 'Drug ID';
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;			
 		}
 		//
 		if ( strncmp('SVD'.$de, $seg, 4) === 0 ) {
 			$loopid = '2430'; $title = 'Line Adjudication';
-			$str_html .= "<tr></tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr></tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;			
 		}
@@ -267,19 +267,19 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 				} 
 			}
 			//				
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title='';
 			continue;
 		}
 		//
 		if ( strncmp('SE'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Trailer';
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;
 		}						
 		// for all the segments that do not begin loops									
-		$str_html .= "<tr><td class='btloop' title='$title'> -- </td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;	
+		$str_html .= "<tr><td class='btloop' title='$title'> -- </td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;	
 		//
 	}
 	//

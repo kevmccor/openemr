@@ -497,7 +497,7 @@ function edih_277_html($filename, $bht03='') {
 	
 	if ($fn) {
 		$obj277 = csv_check_x12_obj($fn, 'f277');
-        if ( 'edih_x12_file' == get_class($obj277) ) {
+        if ($obj277 && 'edih_x12_file' == get_class($obj277) ) {
 			if ($bht03) {
 				// particular transaction
 				$html_str .= edih_277_transaction_html($obj277, $bht03);
@@ -506,7 +506,7 @@ function edih_277_html($filename, $bht03='') {
 				$env_ar = $obj277->edih_envelopes();
 				if (!isset($env_ar['ST'])) {
 					$html_str .= "<p>edih_277_html: file parse error, envelope error</p>".PHP_EOL;
-					$html_str .= $obj271->edih_message();
+					$html_str .= $obj277->edih_message();
 					return $html_str;
 				} else {
 					$html_str .= "<div id='accordion'>".PHP_EOL;
