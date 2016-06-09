@@ -263,6 +263,7 @@ function edih_837_csv_data($obj837) {
 		//
 		$ret_ar[$icn]['file'][$fdx]['Date'] = (string)$gsdate;
 		$ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
+		// if GS06 were unique, it could be used as the 'Control'
 		$ret_ar[$icn]['file'][$fdx]['Control'] = (string)$icn;
 		$ret_ar[$icn]['file'][$fdx]['x12Partner'] = (string)$isa['receiver'];
 		//
@@ -418,6 +419,7 @@ function edih_277_csv_data($obj277) {
 		//'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
 		$ret_ar[$icn]['file'][$fdx]['Date'] = $rspdate;
 		$ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
+		// could be GS06 for 276 if it were unique
 		$ret_ar[$icn]['file'][$fdx]['Control'] = (string)$icn;
 		if ($tp == 'HN') {
 			$ret_ar[$icn]['file'][$fdx]['Accept'] = 0;
@@ -821,11 +823,11 @@ function edih_278_csv_data($obj278) {
 			} // end foreach($stsegs as $seg)
 			//
 		} // endforeach($env_ar['ST'] as $st
-				// file: 'f271': array('Date', 'FileName', 'Control', 'Claim_ct', 'Denied', 'Payer')
 		$fdx = count($ret_ar[$icn]['file']);
 		//
 		$ret_ar[$icn]['file'][$fdx]['Date'] = $rspdate;
 		$ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
+		// could be GS06 for 278 request type
 		$ret_ar[$icn]['file'][$fdx]['Control'] = $icn;
 		$ret_ar[$icn]['file'][$fdx]['TrnCount'] = $cdx;
 		$ret_ar[$icn]['file'][$fdx]['Auth'] = $rqst;
@@ -1063,10 +1065,8 @@ function edih_997_csv_data($obj997) {
 					
 					$loopid = '2000';
 					$rsptype = csv_file_type($sar[1]);
+					// AK102 could be the 'trace' value if it were unique
 					$rspgsn = $sar[2];
-					// debug
-					//echo 'AK1 segment: '.$seg.PHP_EOL;
-					//echo 'resptype: '.$rsptype.' from '.$sar[1].PHP_EOL;
 					//
 					continue;
 				}
@@ -1450,6 +1450,7 @@ function edih_271_csv_data($obj270) {
 		//'f270': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
 		$ret_ar[$icn]['file'][$fdx]['Date'] = $gsdate;
 		$ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
+		// for 270 type, could use GSO6 if it were unique
 		$ret_ar[$icn]['file'][$fdx]['Control'] = $icn;
 		$ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $cdx;
 		if ($isrsp || $ft == 'f271') {

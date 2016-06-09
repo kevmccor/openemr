@@ -71,15 +71,15 @@
  * DataTables
  * 
  */
-a {
-    color: #0000cc;
+table#csvTable a {
+    color: #0E4F83;
     text-decoration: none;
 }
-a:visited {
-    color: #0000cc;
+table#csvTable a:visited {
+    color: #3F260E;
 }
-a:hover {
-    color: #ff5555;
+table#csvTable a:hover {
+    color: #C40E0E;
 }
 
 div#tbrsp {

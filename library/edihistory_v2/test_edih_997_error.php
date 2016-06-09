@@ -65,6 +65,15 @@ function edih_997_errdata($obj997) {
 			//
 			continue;
 		}
+		if (strncmp($seg, 'AK1'.$de, 4) == 0) {
+			$sar = explode($de, $seg);
+			//
+			$fg_type = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';
+			$fg_id = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';
+			//
+			continue;
+		}
+			
 		if (strncmp($seg, 'AK2'.$de, 4) == 0 || strncmp($seg, 'IK2'.$de, 4) == 0 ) {
 			$sar = explode($de, $seg);
 			//
@@ -140,6 +149,8 @@ function edih_997_errdata($obj997) {
 			$diag['summary']['subtime'] = $subtime;
 			$diag['summary']['ackcode'] = $ackcode;
 			$diag['summary']['acknote'] = $acknote;
+			$diag['summary']['fg_type'] = $fg_type;
+			$diag['summary']['fg_id'] = $fg_id;
 			//
 			$sar = explode($de, $seg);
 			$diag['summary']['ak901'] = (isset($sar[1])) ?  $sar[1] : ''; // AK901 A=Accepted R=Rejected.
@@ -187,6 +198,11 @@ function edih_997_err_report($err_array) {
 		$str_html .= (isset($subtime)) ? " <em>Time</em> $subtime<br />" : "<br />";
 		$str_html .= (isset($ackcode)) ? " TA1 $ackcode : ".edih_997_ta1_code($ackcode)." <br />" : "";
 		$str_html .= (isset($acknote)) ? " TA1 $acknote : ".edih_997_ta1_code($acknote)." <br />".PHP_EOL : "<br />".PHP_EOL;
+		if (isset($fg_type)) {
+			$fgtp = csv_file_type($fg_type);
+			$str_html .= " <em>Functional Group Type</em> $fg_type ($fgtp)";
+			$str_html .= (isset($fg_id)) ? " <em>GS06</em> $fg_id <br />".PHP_EOL : "<br />".PHP_EOL;
+		}
 		//
 		//$str_html .= "</p>".PHP_EOL;
 		// 
@@ -230,7 +246,7 @@ function edih_997_err_report($err_array) {
 		$str_html .= (isset($v['ik3segpos'])) ? " <em>Position</em> ".$v['ik3segpos'] : "";
 		$str_html .= (isset($v['ik3loop'])) ? " <em>Loop</em> ".$v['ik3loop'] : "";
 		$str_html .= (isset($v['ik3code'])) ? " <em>Code</em> ".$v['ik3code'].PHP_EOL : PHP_EOL;
-		$str_html .= (isset($v['ik3code'])) ? "<br /> ".edih_997_code_text('ak304',$v['ik3code'])."<br />" : "";
+		$str_html .= (isset($v['ik3code'])) ? "<br /> ".$v['ik3code']." ".edih_997_code_text('ak304',$v['ik3code'])."<br />" : "";
 		//
 		$str_html .= (isset($v['ctxid'])) ? "Situational ".PHP_EOL."<em>Segment</em> ".$v['ctxid'] : "";
 		$str_html .= (isset($v['ctxpos'])) ? " <em>Position</em> ".$v['ctxpos'] : ""; 

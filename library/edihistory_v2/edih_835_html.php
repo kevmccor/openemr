@@ -295,19 +295,13 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 	$capstr = "";
 	$mia_str = "";
 	//
-	$hdr_html = "<tr><th>Reference</th><th colspan=2>Information</th><th colspan=2>$fn</th></tr>".PHP_EOL;
+	$hdr_html = "<tr><th>Reference</th><th colspan=3>Information &nbsp;$fn</th></tr>".PHP_EOL;
 	$hdr_html .= "</thead>".PHP_EOL."<tbody>".PHP_EOL;
 	$clp_html = "";
 	$svc_html = "";
 	$sbr_html = "";
 	$moa_html = ""; 
 	//
-	//
-	//echo '===== edih_835_transaction_html '.php_eol;
-	//var_dump($delimiters).php_eol;
-	//var_dump($clp_ar).PHP_EOL;
-	//
-	// transaction array is array[i][j]
 	foreach($clp_ar as $trans) {
 		$lq_ar = array();
 		$cas_ar = array();
@@ -471,7 +465,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 				$name .= (isset($sar[7]) && $sar[7]) ? " {$sar[7]}" : "";
 				$name .= (isset($sar[4]) && $sar[4]) ? ", {$sar[4]}" : "";
 				$name .= (isset($sar[5]) && $sar[5]) ? " {$sar[5]}" : "";
-				$name .= (isset($sar[7]) && $sar[7]) ? " {$sar[7]}" : "";
+				$name .= (isset($sar[6]) && $sar[6]) ? " {$sar[6]}" : "";
 				//
 				$nm108 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('NM108', $sar[8]) : "";
 				$nm109 = (isset($sar[9]) &&  $sar[9]) ? $sar[9] : "";
@@ -756,8 +750,6 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
  * @return string     HTML table 	
  */
 function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fname='') {
-	//// edih_get_segment($segmentID, $srchStr='', $seg_array='') 
-	//$obj835 = csv_check_x12_obj($file_path, 'f835');
 	//
 	$str_html = '';
 	$pid = $chk = '';
@@ -825,10 +817,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
 		$tblid = "";
 		//
 		foreach ($trans as $seg) {
-			////
-			//$ar_clm = array();
-			
-			////
+			//
 			if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
 				$loopid = 'header';
 				continue;		
@@ -1377,6 +1366,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
 function edih_835_html($filename, $trace='', $clm01='', $summary=false) {
 	//
 	$html_str = '';
+	//
 	if (trim($filename)) {
 		$obj835 = csv_check_x12_obj($filename, 'f835');
         if ($obj835 && 'edih_x12_file' == get_class($obj835)) {

@@ -474,7 +474,7 @@ function edih_disp_x12trans() {
 					if ($fname) {
 						$str_htm .= edih_display_text($fname, $rsptype, $trace);
 					} else {
-						$str_htm .= "<p>Did not find $trace in type $rsptye csv_claims table</p>".PHP_EOL;
+						$str_htm .= "<p>Did not find $trace in type $rsptype csv_claims table</p>".PHP_EOL;
 					}
 				} else {
 					// entire file or transaction if bht03 has a value
@@ -620,11 +620,16 @@ function edih_disp_x12file() {
 	}
 	//
 	if (!$fn) {
-		if ($icn && $ft) {
+		if ($ft && $icn) {
 			$fnr = csv_file_by_controlnum($ft, $icn);
 			$fn = csv_check_filepath($fnr);
+		} elseif ($ft && $trace && $rsptype) {
+			$fnr = csv_file_by_trace($trace, $ft, $rsptype);
+			$fn = csv_check_filepath($fnr);
+			$ft = $rsptype;
+			$trace = '';
 		} elseif ($ft == 'f835' && $trace) {
-			$fnr = csv_file_by_trace($trace, $ft);
+			$fnr = csv_file_by_trace($trace, $ft, $rsptype);
 			$fn = csv_check_filepath($fnr);
 		} elseif ($ft == 'f997' && $trace && $rsptype) {
 			$fnr = csv_file_by_controlnum($rsptype, $trace);
@@ -641,8 +646,8 @@ function edih_disp_x12file() {
 
 	if (!$fn) {
 		//$str_htm = edih_html_heading('error');
-		$str_htm .= "<p>Name error for file: type $ft trace $trace icn $icn </p>" . PHP_EOL;
-		csv_edihist_log("edih_disp_x12file: Name error for file: type $ft trace $trace icn $icn");
+		$str_htm .= "<p>Name error for file: type $ft icn $icn trace $trace rsp $rsptype</p>" . PHP_EOL;
+		csv_edihist_log("edih_disp_x12file: Name error for file: type $ft icn $icn trace $trace rsp $rsptype");
 		return $str_htm;
 	}
 	//

@@ -39,8 +39,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <head>
 	<title><?php echo xlt("edi history"); ?></title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	<!-- OpenEMR css -->
+	<!-- OpenEMR css
 	<link rel="stylesheet" href="<?php echo $web_root?>/interface/themes/style_oemr.css" />
+	 -->
     <!-- jQuery-ui and datatables -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/js/jquery-ui-1.10.4.custom/css/custom-theme/jquery-ui-1.10.4.custom.min.css" />
 <!--
@@ -344,9 +345,6 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
         // activate tab interface
         jQuery("#tabs").tabs();
         jQuery("#tabs").tabs().css('visibility','visible');
-        //
-        jQuery("#fileupl1").hide();
-		jQuery("#fileupl2").hide();
         // set some button disabled
         jQuery('#processfiles').prop('disabled', true);
         jQuery('#archivesubmit').prop('disabled', true);
@@ -356,7 +354,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 		jQuery(function() { loglist() });
 		// update list of archive files
 		jQuery(function() { archlist() });
-        
+        // hide these div elements until used
+        jQuery("#fileupl1").toggle(false);
+		jQuery("#fileupl2").toggle(false);
 	});
 /* ************ 
  *   end of document ready() jquery 
@@ -598,7 +598,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 		        }           
             });
             //
-            //if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
+            if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
             statDialog.dialog('open');
         });
     }

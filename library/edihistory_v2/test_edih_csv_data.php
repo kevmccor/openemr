@@ -563,12 +563,12 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
 					} elseif ($k == 'FileName') {
 						$fn = $v;
-						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'Control') {
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'Trace') {
 						$trc = $v;
-						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
+						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&rsptype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'Claim_ct') {
 						$csv_html .= "<td>$v <a class='sub' href='edih_main.php?tracecheck=$trc&ckprocessed=yes'><em>P?</em></a></td>".PHP_EOL;
 					} elseif ($k == 'Denied') {
