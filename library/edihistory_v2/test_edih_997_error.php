@@ -233,7 +233,8 @@ function edih_997_err_report($err_array) {
 				$pt_name = $trn_ar['pt_name'];
 				$clm01 = $trn_ar['clm01'];
 				$svcdate = $trn_ar['svcdate'];
-				$str_html .= "$pt_name $svcdate $clm01<em>Trace</em> $stn <a class='sub' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
+				$btfn = $trn_ar['batch_name'];
+				$str_html .= "$pt_name $svcdate $clm01 <em>Trace</em> $stn <a class='sub' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
 			} else {
 				$str_html .= "Unable to locate transaction (type: $rtp icn: $icn st: $stn) <br />".PHP_EOL;
 			}
