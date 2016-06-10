@@ -99,7 +99,7 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 					$dt_str .= (isset($csvfile['Reject'])) ? " &nbsp;<em>Rej</em> ".$csvfile['Reject'] : "";
 				} elseif ($ft == 'f835') {
 					$dt_str .= (isset($csvfile['Denied'])) ? " &nbsp;<em>Denied</em> ".$csvfile['Denied'] : "";
-					$dt_str .= ($trc) ? " &nbsp;<em>Chk</em> <a class='$cls' href='edih_main.php?gtbl=file&trace=$trc&ftype=$ft&fmt=htm'>$trc</a>&nbsp;" : "";
+					$dt_str .= ($trc) ? " &nbsp;<em>Chk</em> <a class='$cls' href='edih_main.php?gtbl=file&fname=$fn1&trace=$trc&ftype=$ft&fmt=htm'>$trc</a>&nbsp;" : "";
 					$dt_str .= (isset($csvfile['Payer'])) ? " &nbsp;".$csvfile['Payer'] : "";
 				}
 				//
