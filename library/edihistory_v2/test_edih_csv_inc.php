@@ -949,56 +949,25 @@ function edih_errseg_parse($err_seg, $id=false) {
 	//
 	// note: multiple IK3 segments are allowed in 997/999 x12
 	//
-	// example |IK3*NM1*16*2010BA*8*1234567890002|CTX*SITUATIONAL TRIGGER*CLM*43**5:3*C023:1325  
-	//  locate segment (#16 in ST-SE envelope)
-	// IK3*SegID*SegNum*Loop*ErrCode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
-	//
 	$ret_ar = array();
-	if ( !$err_seg || strpos($err_seg, 'IK3') !== 1) {
+	if ( !$err_seg || strpos($err_seg, 'IK3') === false) {
 		csv_edihist_log('edih_errseg_parse: invalid argument');
 		return $ret_ar;
 	}
 	//'|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
-	$ik3_ct = substr_count($err_seg, '|IK3*');
-	//
-	if ($id) {
-		// only return the first segment ID if the error segment string
-		$pos1 = strpos($err_seg, '*');
-		$pos2 = strpos($err_seg, '*', $pos1+1);
-		$idstr = substr($err_seg, $pos1+1, $pos2-$pos1);
-		//
-		return $idstr;
-	}
-	//	
-	$err_ar = array();
-	$idx = 0;
-	$ik3_end = 0;
-	// debug
-	echo 'err_seg '.$err_seg.PHP_EOL;
-	echo 'ik3_ct '.$ik3_ct.PHP_EOL;
-	// 
-	while ($idx < $ik3_ct) {
-		//
-		$ik3_pos = strpos($err_seg, 'IK3', $ik3_end);
-		$ik3_ctx = strpos($err_seg, 'CTX');
-		$ik3_end = (strpos($err_seg, '|', 1) === false) ? strlen($err_seg) : strpos($err_seg, '|', 1);
-		//
-		$ik3_ar = explode('*', substr($err_seg, $ik3_pos, $ik3_end-$ik3_pos));
-		$e_ar[$idx]['id'] = (isset($ik3_ar[1])) ? $ik3_ar[1] : '';
-		$e_ar[$idx]['segpos'] = (isset($ik3_ar[2])) ? $ik3_ar[2] : '';
-		$e_ar[$idx]['loop'] = (isset($ik3_ar[3])) ? $ik3_ar[3] : '';       // first 4 characters of loop
-		$e_ar[$idx]['code'] = (isset($ik3_ar[4])) ? $ik3_ar[4] : '';
-		//
-		if ( strlen($ik3_ar[5]) == 13) {
-			$e_ar[$idx]['stn'] = substr($ik3_ar[5], -4);
-			$e_ar[$idx]['icn'] = substr($ik3_ar[5], 0, 9);
+	// revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
+	$ik = explode('*', $err_seg);
+	foreach($ik as $i=>$k) {
+		switch((int)$i) {
+			case 0:$ret_ar['trace'] = $k; break;				
+			case 1: break;  // IK3
+			case 2: $ret_ar['id'][] = $k; break;   // segment ID
+			case 3: $ret_ar['err'][] = $k; break;  // segment position
+			case 4: $ret_ar['id'][] = $k; break;
+			case 5: $ret_ar['err'][] = $k; break;			
+			case 6: $ret_ar['id'][] = $k; break;
+			case 7: $ret_ar['err'][] = $k; break;
 		}
-		// ignore CTX, since it seems it will rarely if ever apply for OpenEMR
-		//$e_ar[]['trn'] = (isset($ik3_ar[6]) ? $ik3_ar[6] : '';
-		//$e_ar[]['segid'] = (isset($ik3_ar[7]) ? $ik3_ar[7] : '';
-		//
-		$ret_ar[$idx] = $e_ar;
-		$idx++;
 	}
 	//
 	return $ret_ar;

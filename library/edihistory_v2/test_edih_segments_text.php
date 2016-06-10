@@ -92,13 +92,16 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 		$str_html .= "Invalid arguments for view of x12 file text<br>";
 		return $str_html;
 	}
-	//
+	// to highlight identified errors listed in 999/997 ack
 	if ($err_seg) {
 		$er = edih_errseg_parse($err_seg);
-		if ( is_array($er) && count($er)) { 
-			$err_ar = $er;
-		} 
+		$erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
+		$erseg = (isset($er['err'])) ? $er['err'] : array();
+	} else {
+		$erstn = '';
+		$erseg = array();
 	}
+	//
 	$de = $delimiter;
 	$loopid = "0";
 	$idx = 0;
@@ -113,16 +116,8 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 		$stsegct++;
 		$bterr = 'btseg';
 		//
-		if ( count($err_ar) ) {
-			if ( isset($er['stn']) ) {
-				if ($er['stn'] == $stn) {
-					foreach($err_ar as $er) {
-						if ( int_val($er['segpos']) == $stsegct) {
-							$bterr = 'bterr';
-						}
-					}
-				}
-			}
+		if ($erstn && ($erstn == $stn)) {
+			$bterr = (in_array($stsegct, $erseg)) ? 'bterr' : 'btseg';
 		}
 		//
 		if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
@@ -310,9 +305,18 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 	$loopid = "0";
 	$lx_ct = 0;
 	$hasst = false;
-	$err_ar = array();
 	$idx = 0;
-	$stsegct =0;
+	$stsegct = 0;
+	//
+	// to highlight identified errors listed in 999/997 ack (for 270)
+	if ($err_seg) {
+		$er = edih_errseg_parse($err_seg);
+		$erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
+		$erseg = (isset($er['err'])) ? $er['err'] : array();
+	} else {
+		$erstn = '';
+		$erseg = array();
+	}
 	//
 	if ($err_seg) {
 		$er = edih_errseg_parse($err_seg);
@@ -322,28 +326,22 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 	}	
 	//
 	foreach ($segments as $key=>$seg) {
+		$sar = array();
 		$idx++;
 		$stsegct++;
 		$bterr = 'btseg';
 		//
-		if ( count($err_ar) ) {
-			if ( isset($er['stn']) ) {
-				if ($er['stn'] == $stn) {
-					foreach($err_ar as $er) {
-						if ( int_val($er['segpos']) == $stsegct) {
-							$bterr = 'bterr';
-						}
-					}
-				}
-			}
+		if ($erstn && ($erstn == $stn)) {
+			$bterr = (in_array($stsegct, $erseg)) ? 'bterr' : 'btseg';
 		}
-		//		
 		//
 		if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
+			$sar = explode($de, $seg);
 			$loopid = 'Header';
 			$hasst = true;
 			$stsegct = 1;
-			$stn = explode($de, $seg)[2];
+			$sttp = (isset($seg[1])) ? $seg[1] : '';
+			$stn = (isset($seg[2])) ? $seg[2] : '';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			continue;
 		}
@@ -564,18 +562,35 @@ function edih_277_text($segments, $delimiter, $stpos='') {
 		return $str_html;
 	}
 	//
+	// to highlight identified errors listed in 999/997 ack (for 276)
+	//if ($err_seg) {
+		//$er = edih_errseg_parse($err_seg);
+		//$erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
+		//$erseg = (isset($er['err'])) ? $er['err'] : array();
+	//} else {
+		//$erstn = '';
+		//$erseg = array();
+	//}
+	//
 	$de = $delimiter;
 	$prevseg = '';
 	$loopid = "0";
 	$lx_ct = 0;
+	$stsegct = 0;
 	//$idx = 0;
 	//
 	foreach($segments as $idx=>$seg) {
 		//$idx++;
+		$stsegct++;
 		$key = ($stpos) ? $idx - $stpos : $idx;
+		// if 276 transactions are parsed, 999 errors may be present
+		//if ($erstn && ($erstn == $stn)) {
+			//$bterr = (in_array($stsegct, $erseg)) ? 'bterr' : 'btseg';
+		//}		
 		//
 		if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Header';
+			$stsegct = 1;
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			continue;
 		}
@@ -700,11 +715,14 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 	$idx = 0;
 	$stsegct =0;
 	//
+	// to highlight identified errors listed in 999/997 ack
 	if ($err_seg) {
 		$er = edih_errseg_parse($err_seg);
-		if ( is_array($er) && count($er)) { 
-			$err_ar = $er;
-		}
+		$erstn = (isset($er['trace'])) ? substr($er['trace'], -4) : '';
+		$erseg = (isset($er['err'])) ? $er['err'] : array();
+	} else {
+		$erstn = '';
+		$erseg = array();
 	}	
 	//
 	foreach ($segments as $key=>$seg) {
@@ -713,18 +731,9 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 		$title = '';
 		$bterr = 'btseg';
 		//
-		if ( count($err_ar) ) {
-			if ( isset($er['stn']) ) {
-				if ($er['stn'] == $stn) {
-					foreach($err_ar as $er) {
-						if ( int_val($er['segpos']) == $stsegct) {
-							$bterr = 'bterr';
-						}
-					}
-				}
-			}
-		}
-		//		
+		if ($erstn && ($erstn == $stn)) {
+			$bterr = (in_array($stsegct, $erseg)) ? 'bterr' : 'btseg';
+		}		
 		//
 		if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Header';
@@ -925,7 +934,7 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 	// verify x12 file
 	$x12obj = csv_check_x12_obj($filepath, $ft);
 	//
-	if ( 'edih_x12_file' == get_class($x12obj) ) {
+	if ($x12obj && 'edih_x12_file' == get_class($x12obj) ) {
 		$ftype = $x12obj->edih_type();
 		$ft = csv_file_type($ftype);
 		$delims = $x12obj->edih_delimiters();
@@ -1017,26 +1026,6 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 		unset($trnsegs);	
 	}
 	//
-	// create a link to report version -- for file only
-	// (too fancy - report is already available in csv tables and won't work from EDI File tab)
-	//if (strpos('|HI|HB|HN|HP', $ftype)) {
-		////if ($bht03) {
-			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&bht03=$bht03&fmt=htm'>Report</a>)";
-		////} elseif ($trace) {
-			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&trace=$claimidfmt=htm'>Report</a>)";
-		////} elseif ($claimid) {
-			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&pid=$claimid&fmt=htm'>Report</a>)";
-		////} else {
-			////$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$ft&fmt=htm'>Report</a>)";
-		////}
-		//if (!$trace || !$claimid) {
-			//$hlnk = "(<a class='rsp' href='edih_main.php?gtbl=file&fname=$fn&ftype=$ft&fmt=htm'>Report</a>)";
-		//}
-	//} else {
-		//$hlnk = "";
-	//}
-	//
-	$hlnk = "";	
 	$capstr = '';
 	$tbl_id = ($claimid) ? $claimid : $fn;
 	// 
@@ -1085,7 +1074,7 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 	$str_html .= "<table id=$tbl_id cols=3 class='segtxt'><caption>$capstr</caption>".PHP_EOL;
 	$str_html .= "<thead>".PHP_EOL;
 	$str_html .= "<tr><th class='btloop'>Loop</th><th class='btloop'>Num</th>";
-	$str_html .= "<th class='segtxt'>Segment (<em>File:</em> $fn) $hlnk</th></tr>".PHP_EOL;
+	$str_html .= "<th class='segtxt'>Segment (<em>File:</em> $fn)</th></tr>".PHP_EOL;
 	$str_html .= "</thead>".PHP_EOL."<tbody>".PHP_EOL;
 	//
 	$str_html .= $trn_html;

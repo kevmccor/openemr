@@ -880,8 +880,8 @@ function edih_rsp_st_match($rsp_trace, $file_type) {
 		return $info_ar;
 	}
 	//
-	$batch_srch = csv_search_record($ft, 'file', array('s_val'=>$bticn, 's_col'=>2, 'r_cols'=>array(1, 2)), "1" );
-	$btfn = ( count($batch_srch) == 2 ) ? $batch_srch[0] : '';
+	//$batch_srch = csv_search_record($ft, 'file', array('s_val'=>$bticn, 's_col'=>2, 'r_cols'=>array(1, 2)), "1" );
+	$btfn = csv_file_by_controlnum($ft, $bticn);
 	$bfullpath = ($btfn) ? csv_check_filepath($btfn, $ft) : '';
 	$batch_x12_obj = csv_check_x12_obj($btfn, $ft);
 	if ($batch_x12_obj && ('edih_x12_file' == get_class($batch_x12_obj))) {
@@ -1089,11 +1089,12 @@ function edih_997_csv_data($obj997) {
 					$loopid = '2100';
 					$ctx_ct = 0;
 					//
-					$err_seg .= '|IK3*'.$sar[1]; 		// ISA13+ST02 * invalid segment ID
+					$err_seg .= ($err_seg) ? '' : $bht03syn.'*IK3*';	// ISA13+ST02 * invalid segment ID
+					$err_seg .= (isset($sar[1])) ? '*'.$sar[1] : '*';
 					$err_seg .= (isset($sar[2])) ? '*'.$sar[2] : '*';   // segment position
-					$err_seg .= (isset($sar[3])) ? '*'.$sar[3] : '*';   // loop, first 4 characters
-					$err_seg .= (isset($sar[4])) ? '*'.$sar[4] : '*';   // error code
-					$err_seg .= '*'.$bht03syn;
+					//$err_seg .= (isset($sar[3])) ? '*'.$sar[3] : '*';   // loop, first 4 characters
+					//$err_seg .= (isset($sar[4])) ? '*'.$sar[4] : '*';   // error code
+					//$err_seg .= '*'.;
 					// example IK3*NM1*16*2010*8~  |IK3*SegID*SegNum*Loop*ErrCode*$bht03syn 
 					// locate segment (#16 in ST-SE envelope)
 					// ['err_seg'] = '|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*transID*segID*segpos*elempos
@@ -1115,53 +1116,53 @@ function edih_997_csv_data($obj997) {
 					continue;
 				}
 				//
-				if ( strncmp($seg, 'IK4'.$de, 4) === 0 || strncmp($seg, 'AK4'.$de, 4) === 0 ) {
-					// data element error
-					$sar = explode($de, $seg);
-					$loopid == '2110';
-					$iserr = true;
-					$err_seg = '';
-					$ctx_ct = 0;
-					$err_seg .= '|IK4';
-					$err_seg .= (isset($sar[1])) ? '*'.$sar[1] : '*';
-					$err_seg .= (isset($sar[2])) ? '*'.$sar[2] : '*';
-					$err_seg .= (isset($sar[3])) ? '*'.$sar[3] : '*';
-					$err_seg .= (isset($sar[4])) ? '*'.$sar[4] : '*';
-					// |IK4|elempos|errcode|elem 
-					continue;
-				}
+				//if ( strncmp($seg, 'IK4'.$de, 4) === 0 || strncmp($seg, 'AK4'.$de, 4) === 0 ) {
+					//// data element error
+					//$sar = explode($de, $seg);
+					//$loopid == '2110';
+					//$iserr = true;
+					
+					//$ctx_ct = 0;
+					//$err_seg .= ($err_seg) ? '|IK4' : '';
+					//$err_seg .= (isset($sar[1])) ? '*'.$sar[1] : '*';
+					//$err_seg .= (isset($sar[2])) ? '*'.$sar[2] : '*';
+					////$err_seg .= (isset($sar[3])) ? '*'.$sar[3] : '*';
+					////$err_seg .= (isset($sar[4])) ? '*'.$sar[4] : '*';
+					//// |IK4|elempos|errcode|elem 
+					//continue;
+				//}
 				//
-				if ( strncmp($seg, 'CTX'.$de, 4) === 0 ) {
-					$sar = explode($de, $seg);
-					$ctx_ct++;
-					if ($loopid == '2100') {
-						$err_seg .= '|CTX-IK3';
-					}
-					if ($loopid == '2110') {
-						$err_seg .= '|CTX-IK4';
-					}
-					// CTX segment identifiers $trans_id['837'] ['270'] ['276']
-					if ( isset($trans_id[$rsptype]) && strpos($seg, $trans_id[$rsptype]) ) {
-						$err_seg .= (isset($sar[1]) && $sar[1]) ? '*'.$sar[1] : '';
-					}
+				//if ( strncmp($seg, 'CTX'.$de, 4) === 0 ) {
+					//$sar = explode($de, $seg);
+					//$ctx_ct++;
+					//if ($loopid == '2100') {
+						//$err_seg .= '|CTX-IK3';
+					//}
+					//if ($loopid == '2110') {
+						//$err_seg .= '|CTX-IK4';
+					//}
+					//// CTX segment identifiers $trans_id['837'] ['270'] ['276']
+					//if ( isset($trans_id[$rsptype]) && strpos($seg, $trans_id[$rsptype]) ) {
+						//$err_seg .= (isset($sar[1]) && $sar[1]) ? '*'.$sar[1] : '';
+					//}
 
-					if(strncmp($sar[1], 'SITUA', 5) === 0 ) {
-						// SITUATIONAL TRIGGER
-						$err_seg .= (isset($sar[2]) && $sar[2]) ? '*'.$sar[2] : '*';
-						$err_seg .= (isset($sar[3]) && $sar[3]) ? '*'.$sar[3] : '*';
-						$err_seg .= (isset($sar[5]) && $sar[5]) ? '*'.$sar[5] : '*';
-						// |CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
-					} elseif ($ctx_ct > 1) {
-						$err_seg .= '*'.$sar[2];
-						if (!$have_pt) {
-							$p1 = strpos($sar[1],$ds);
-							$p2 = ($p1) ? strlen($sar[1])-$p1-1 : strlen($sar[1]);
-							$ret_ar[$icn]['claim'][$cdx]['CLM01'] = substr($sar[1], -$p2);
-						}
-					}
+					//if(strncmp($sar[1], 'SITUA', 5) === 0 ) {
+						//// SITUATIONAL TRIGGER
+						//$err_seg .= (isset($sar[2]) && $sar[2]) ? '*'.$sar[2] : '*';
+						//$err_seg .= (isset($sar[3]) && $sar[3]) ? '*'.$sar[3] : '*';
+						//$err_seg .= (isset($sar[5]) && $sar[5]) ? '*'.$sar[5] : '*';
+						//// |CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
+					//} elseif ($ctx_ct > 1) {
+						//$err_seg .= '*'.$sar[2];
+						//if (!$have_pt) {
+							//$p1 = strpos($sar[1],$ds);
+							//$p2 = ($p1) ? strlen($sar[1])-$p1-1 : strlen($sar[1]);
+							//$ret_ar[$icn]['claim'][$cdx]['CLM01'] = substr($sar[1], -$p2);
+						//}
+					//}
 
-					continue;
-				}
+					//continue;
+				//}
 				//
 				if ( strncmp($seg, 'AK5'.$de, 4) === 0 || strncmp($seg, 'IK5'.$de, 4) === 0 ) {
 					// only store claims entries if there is an error
