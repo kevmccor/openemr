@@ -93,7 +93,7 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 				if ($ft == 'f997' || $ft == 'ta1') {
 					$dt_str .= ($typ) ? " &nbsp;".$typ : "";
 					$dt_str .= ($rej) ? " &nbsp;".$rej : "";
-					$dt_str .= ($trc) ? "&nbsp; <a class='$cls' title=$trc href='edih_main.php?gtbl=file&trace=$trc&ftype=$typ'><em>trace</em></a>&nbsp;" : "";
+					$dt_str .= ($trc) ? "&nbsp; <a class='$cls' title=$trc href='edih_main.php?gtbl=file&trace=$trc&ftype=$ft&rsptype=$typ'><em>trace</em></a>&nbsp;" : "";
 				} elseif ($ft == 'f277') {
 					$dt_str .= (isset($csvfile['Accept'])) ? " &nbsp;<em>Accpt</em> ".$csvfile['Accept'] : "";
 					$dt_str .= (isset($csvfile['Reject'])) ? " &nbsp;<em>Rej</em> ".$csvfile['Reject'] : "";

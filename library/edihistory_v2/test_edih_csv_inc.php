@@ -600,6 +600,7 @@ function csv_check_filepath($filename, $type='ALL') {
 	}
 	//
 	$goodpath = '';
+	$fp = '';
 	$fn = basename($filename);
 	//
 	if ($type && $type != 'ALL') {
