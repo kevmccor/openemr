@@ -475,6 +475,7 @@ function edih_disp_x12trans() {
 						$str_htm .= edih_display_text($fname, $rsptype, $trace);
 					} else {
 						$str_htm .= "<p>Did not find $trace in type $rsptype csv_claims table</p>".PHP_EOL;
+						csv_edihist_log("edih_disp_x12trans: Did not find $trace in type $rsptype csv_claims table");
 					}
 				} else {
 					// entire file or transaction if bht03 has a value

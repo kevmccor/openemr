@@ -199,7 +199,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 		</table>
 		
         <div id='tblshow'></div>
-        <div id='tbcsvhist'></div> 
+        <div id='tbcsvhist'></div>
+        <div id='tbrpt'></div>
 		<div id='tbrsp'></div>
         <div id='tbsub'></div> 
         <div id='tbseg'></div>
@@ -391,16 +392,13 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			success: function(data) {
 			  var options = jQuery('#csvselect').attr('options');
 			  var optct = jQuery.isPlainObject(data);  // data.length
-			  //console.log('csvlist optct ' + optct);
 			  if (optct) {
 				var options = [];
 				options.push("<option value='' selected='selected'><?php echo xla("Choose from list"); ?></option>");
 				jQuery.each(data.claims, function(idx, value) {
-					//console.log(idx + " - " + value.fname + " " + value.desc);
 					options.push("<option value=" + value.fname + ">" + value.desc + "</option>");
 				});
 				jQuery.each(data.files, function(idx, value) {
-					//console.log(idx + " - " + value.fname + " " + value.desc);
 					options.push("<option value=" + value.fname + ">" + value.desc + "</option>");
 				});
 				jQuery("#csvselect").html(options.join(''));
@@ -445,7 +443,6 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 				for (var i=0; i<optct; i++) {
 				  options.push("<option value=" + data[i] + ">" + data[i] + "</option>");
 				}
-				//console.log('#archrestoresel', options);
 				jQuery('#archrestoresel').html(options.join(""));
 			  }
 			}
@@ -464,14 +461,6 @@ buttons: [{ text: "Close", click: function(){
 								}
 							}],
  
- var newwin = jQuery(this).attr('href') + '&newwin=yes';         
- { text: "New Window", click: function() {
-		window.open(newwin, '_blank');
-		jQuery(this).html("");
-		jQuery(this).dialog("close");
-		}
-	},
-
 // add this div for minimized dialog
 <div id="dialog_window_minimized_container"></div>
 // **** script *****
@@ -535,52 +524,76 @@ function(e){ jQuery(this).addClass('outlinetr'); },
 function(e){ jQuery(this).removeClass('outlinetr'); }
 );
 */
-/** alternative to bindlinks function
-    control z-index by designating to which div the dialog is appended
+/** alternative to bindlinks function ?  
+    control visibility by designating to which div the dialog is appended
     dialogs appended to div#tabs will be on top (appendTo as option also) appendTo: "#tabs", 
 **** */
-	var dialogOpts = {
-		draggable: true,
-		height: '300',
-		width: '560',
-		resizable: true,
-		title: 'Transaction Detail',
-		close: function(event, ui)
-        {
-            $(this).dialog("close");
-            $(this).remove();
-        }
-    };
+    function dialogOptions(appendElem) {
+		var tblDialogOpts = {
+			appendTo: appendElem,
+			draggable: true,
+			resizable: true,
+			height: 328,
+			width: 512,
+			maxWidth: 768,
+			title: 'Transaction Detail',
+			close: function(event, ui)
+	        {
+	            jQuery(this).dialog("close");
+	            jQuery(this).remove();
+	        }
+	    };
+	    return tblDialogOpts;
+	}
+ 
 			
-	jQuery('div#tbcsvhist').on('click', 'a', function(e) {
+	jQuery('#tbcsvhist').on('click', 'a', function(e) {
 		e.preventDefault();
+		e.stopPropagation();
+		var options = dialogOptions('#tbcsvhist');
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dialogOpts);
+	        .load(jQuery(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
 	});
-	
-	jQuery('div#tbsub').on('click', 'a', function(e) {
+
+	jQuery('#tblshow').on('click', 'a', function(e) {
 		e.preventDefault();
+		e.stopPropagation();
+		var ttl = jQuery(this).attr('title');
+		var options = dialogOptions('#tblshow');
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dialogOpts);
+	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
 	});
-	
-	jQuery('#rsp #sub #seg').on('click', 'a', function(e) {
+		
+	jQuery('#tbrpt').on('click', 'a', function(e) {
 		e.preventDefault();
-		var dlgOpts = {draggable: true, height: '300', width: '560', resizable: true, title: 'Report' };
+		e.stopPropagation();
+		var options = dialogOptions('#tblshow');
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-	        .load(jQuery(this).attr('href')).appendTo('#tabs').dialog(dlgOpts);
+	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
+	});
+
+/* **** links in dialog in uploads - processed div  ****	*/
+	jQuery('#processed').on('click', 'a', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var options = dialogOptions('#processed');
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#processed').dialog(options);
 	});
 
 /*
 // **** script ****
+// ***** not used due to multiple event attachment -- see added jQuery(dElem).off(dEvt, cClass); 
+// .on( events [, selector ] [, data ], handler )
+// bind 'a.cClass' child of dElem to event dEvt
 // bindlinks('#processed', 'click', '.rsp', 'click', '#rsp', '<?php echo xla("Response"); ?>'),
 // bindlinks('#tblshow', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
 */
-    function bindlinks(dElem, dEvt, cClass, cEvt, cElem, mytitle){ 
+    function bindlinks(dElem, dEvt, cClass, cEvt, cElem, mytitle){
+		 jQuery(dElem).off(dEvt, cClass); 
          jQuery(dElem).on(dEvt, cClass, cEvt, function(e) {
             e.preventDefault();
-            //
-            jQuery.get(jQuery(this).attr('href'), function(data){ jQuery(cElem).html(data); });
+            e.stopPropagation();
             //
             var statDialog = jQuery(cElem).dialog({
 				appendTo: dElem, //"#tabs",
@@ -594,9 +607,13 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
                 close: function(event, ui) {
 		            //$(this).dialog("close");
 		            //$(this).remove();
+		            console.log(this);
 		            $(this).empty();
 		        }           
             });
+            //
+            console.log(this);
+            jQuery.get(jQuery(this).attr('href'), function(data){ jQuery(cElem).html(data); });
             //
             if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
             statDialog.dialog('open');
@@ -734,10 +751,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 						//
 						jQuery('#processed').html(data);
 						jQuery('#processed').show();
-					},
-					bindlinks('#processed', 'click', '.rsp', 'click', '#rsp', '<?php echo xla("Response"); ?>'),
-					bindlinks('#processed', 'click', '.sub', 'click', '#sub', '<?php echo xla("Submited"); ?>'),
-					bindlinks('#processed', 'click', '.seg', 'click', '#seg', '<?php echo xla("EDI Segments"); ?>')
+					}
 				],
 			    error: function( xhr, status ) {
 					alert( "Sorry, there was a problem!" ),
@@ -772,20 +786,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 		}
 	   return false;
 	}
-/* *** use .hover event 
-jQuery('#fileupl2 > li').hover(
-	var fl1 = jQuery('#fileupl1').find('li');
-	var fname = jQuery(this).text();
-	function(e){ jQuery(this).css('font-weight', 'bolder'); outlineMatch(fl1, fname); },
-	function(e){ jQuery(this).css('font-weight', 'normal'); outlineMatch(fl1, 'none'); }
-);
-jQuery('#fileupl1 > li').hover(
-	var fl2 = jQuery('#fileupl2').find('li');
-	var fname = jQuery(this).text();
-	function(e){ jQuery(this).css('font-weight', 'bolder'); if (fl2.length) { outlineMatch(fl2, fname); }; },
-	function(e){ jQuery(this).css('font-weight', 'normal'); if (fl2.length) { outlineMatch(fl2, 'none'); }; }
-);
- */
+
 /* *** do not use .hover event   */
 	jQuery('#fileupl2').on('mouseenter', 'li', function(event){
 		var fl1 = jQuery('#fileupl1').find('li');
@@ -830,6 +831,7 @@ jQuery('#fileupl1 > li').hover(
  */
 	jQuery('#formcsvtables').on('submit', function(e) {
 		e.preventDefault();
+		e.stopPropagation();
 		// verify a csv file is selected
 		if (jQuery('#csvselect').val() == '') {
 			jQuery("#tblshow").html('<?php echo xla("No table selected! Select a table."); ?>');
@@ -841,11 +843,7 @@ jQuery('#fileupl1 > li').hover(
 			data: jQuery('#formcsvtables').serialize(), 
 			dataType: "html",
 			success: [ 
-				function(data){ 
-                    //var tbltl = "<div class='csvcptn'>" + jQuery(data).filter('#dttl').html() + "</div>";
-					//var mytbl = "<table id='csvTable' class='csvDisplay'>" + jQuery(data).not('#dttl').html() + "</table>";
-					//var mytbl = jQuery(data).not('#dttl').html();
-					//jQuery('#tblshow').html(jQuery.trim(mytbl));
+				function(data){
 					jQuery('#tblshow').html(data);
 					jQuery('#tblshow').css('maxWidth', 'fit-contents'); 
 					jQuery('#tblshow table#csvTable').DataTable({
@@ -867,10 +865,7 @@ jQuery('#fileupl1 > li').hover(
 						'paging': true
 					});
                     //jQuery("#csvTable_filter").before(tbltl);
-				},
-				bindlinks('#tblshow', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
-				bindlinks('#tblshow', 'click', '.sub', 'click', '#tbsub', '<?php echo xla("Submitted"); ?>'),
-				bindlinks('#tblshow', 'click', '.seg', 'click', '#tbseg', '<?php echo xla("EDI Segments"); ?>')				
+				},	
 			]              
 		});
 	}); 
@@ -878,26 +873,28 @@ jQuery('#fileupl1 > li').hover(
 	// csv encounter history
 	jQuery('#formcsvhist').on('submit', function(e) {
 		e.preventDefault();
-		jQuery('#tbcsvhist').html('');
+		jQuery('#tbcsvhist').empty();
 		var chenctr = jQuery('#histenctr').value;
-		var encrecord = jQuery('#tbcsvhist').dialog({
-					appendTo: '#csvdatatables',
-					modal: false,
+		var histopts = { modal: false,
+					appendTo: '#tbcsvhist',
+					height: 'auto',
+					width: 568,
+					maxWidth: 616,
 					title: "<?php echo xla("Encounter EDI Record"); ?>",
-					height: 416,
-					width: 'auto'
-				});
+					close: function(event, ui) {
+						jQuery(this).empty();
+			            jQuery(this).dialog('close');
+			        }
+				};
 		jQuery.ajax({
 			type: "GET",
 			url: jQuery('#formcsvhist').attr('action'), 
 			data: jQuery('#formcsvhist').serialize(), //{ csvenctr: chenctr },
 			dataType: "html",
-			success: [
-				function(data){ jQuery('#tbcsvhist').html(jQuery.trim(data)); },
-				//bindlinks('#tbcsvhist', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
-				//bindlinks('#tbcsvhist', 'click', '.sub', 'click', '#tbsub', '<?php echo xla("Submitted"); ?>'),
-				//bindlinks('#tbcsvhist', 'click', '.seg', 'click', '#tbseg', '<?php echo xla("EDI Segments"); ?>'),
-				encrecord.dialog('open')
+			success: [ function(data){
+				jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+					.appendTo('#tbcsvhist').html(jQuery.trim(data)).dialog(histopts).dialog('open');
+				}
 			]				
 		});
     });
@@ -942,27 +939,13 @@ jQuery('#fileupl1 > li').hover(
 	});
 	//
 	jQuery('#x12filerst').on('click', function(e){
-		// <input type="button" onclick="this.form.reset();">
-		// $('#form').trigger("reset");
 		e.preventDefault();
 		e.stopPropagation();
 		// clear file display
 		jQuery('#x12rsp').html('');
 		jQuery('#x12filesbmt').prop('disabled', true);
 		jQuery('#x12view').trigger('reset');
-		//jQuery('#x12file').val('');
-		//jQuery('#x12view').reset();
 	});
-
-
-	//jQuery('#x12nwin').on('click', function(e) {
-		//e.stopPropagation();
-		//e.preventDefault();
-		////
-		//var head = jQuery('head').html();
-		//var x12disp = jQuery('#fx12rsp').html();
-		//var str = "<!DOCTYPE html><html>" + head + "<body>" + x12disp + "</body></html>";
-		//window.open(newwin, '_blank');
 
 /*
  * === functions for logs, notes, and archive "frm_archive" "archiveselect""archivesubmit"
@@ -1129,12 +1112,6 @@ jQuery('#fileupl1 > li').hover(
 				rspElem.show();
 			}
 		});
-		//jQuery.get('ehih_main.php', { archivereport: 'yes', period: sprd })
-			//.done(function( data ) {
-				//alert( "Data Loaded );
-				//rspElem.html(data);
-			//});
-		//});
 		return false;
 	});
 	//		

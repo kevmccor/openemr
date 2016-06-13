@@ -224,8 +224,9 @@ function edih_997_err_report($err_array) {
 		$ct = $k + 1;
 		$icn = (isset($sub_icn)) ? $sub_icn : '';
 		$str_html .= "<p class='err997'>".PHP_EOL;
-		$str_html .= "Error $ct<br />";
+		$str_html .= "Error $ct ";
 		if (isset($v['substn']) && isset($v['subtype'])) {
+			$str_html .= "<em>ST</em> ".$v['substn']."<br />";
 			$stn = $v['substn']; $rtp = $v['subtype']; 
 			$trace = ($icn) ? sprintf("%s%04d", $icn, $stn) : "";
 			$trn_ar = ($trace) ? edih_rsp_st_match($trace, $rtp) : "";
@@ -234,9 +235,9 @@ function edih_997_err_report($err_array) {
 				$clm01 = $trn_ar['clm01'];
 				$svcdate = $trn_ar['svcdate'];
 				$btfn = $trn_ar['batch_name'];
-				$str_html .= "$pt_name $svcdate $clm01 <em>Trace</em> $stn <a class='sub' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
+				$str_html .= "$pt_name $svcdate $clm01 <em>Trace</em> $stn <a class='rpt' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
 			} else {
-				$str_html .= "Unable to locate transaction (type: $rtp icn: $icn st: $stn) <br />".PHP_EOL;
+				$str_html .= "Unable to locate transaction <a class='rpt' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
 			}
 		} else {
 			$str_html .= "Unable to trace, did not get type or st number <br />".PHP_EOL;

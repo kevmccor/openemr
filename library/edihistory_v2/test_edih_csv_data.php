@@ -194,7 +194,20 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 	return $str_html;
 }
 
-
+/**
+ * make a list of brief information and links to claims where a problem
+ * has been identified.
+ *
+ * @uses csv_file_type()
+ * @uses edih_997_error()
+ * @uses csv_denied_by_file()
+ * 
+ * @param string
+ * @param string
+ * @param string
+ *
+ * @return string
+ */
 function edih_list_denied_claims($filetype, $filename, $trace='') {
 	//
 	$str_html = '';
@@ -221,22 +234,22 @@ function edih_list_denied_claims($filetype, $filename, $trace='') {
 		if ($ft == 'f835') {
 			foreach($row_ar as $row) {
 				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
-				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f277') {
 			foreach($row_ar as $row) {
 				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
-				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f271') {
 			foreach($row_ar as $row) {
 				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
-				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbrsp' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
 			}
 		} elseif ($ft == 'f997') {
 			foreach($row_ar as $row) {
 				$oe = ( $rwct % 2 ) ? 'codd' : 'ceven'; $rwct++;
-				$str_html .= "<dt class='$oe'>{$row[0]} <a class='tbseg' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
+				$str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
 			}
 		}
 		//
@@ -257,7 +270,9 @@ function edih_list_denied_claims($filetype, $filename, $trace='') {
  * @uses csv_file_with_pid_enctr()
  * @uses csv_table_select_list()
  * @uses csv_search_record()
+ * 
  * @param string       encounter number
+ * 
  * @return string
  */
 function edih_claim_history($encounter) {
@@ -414,8 +429,9 @@ function edih_claim_history($encounter) {
  * @param string      $file_type -- see function csv_file_type()
  * @param string      $csv_type -- either "file" or "claim"
  * @param string      $period -- lookback 2 weeks, 1 month, ALL, etc
- * @param string      $datestart -- from date  CCYYMMDD
- * @param string      $dateend -- to date  CCYYMMDD
+ * @param string      $datestart -- from date  CCYY-MM-DD
+ * @param string      $dateend -- to date  CCYY-MM-DD
+ * 
  * @return string
  */
 function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dateend='') {
@@ -457,16 +473,21 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 	$tp_lbl = (strpos($csv_type, "aim")) ? 'Claims' : 'Files';
 	//
 	// given dates shold be in CCYY-MM-DD or CCYY/MM/DD format
-	// edih_view_v2.php is supposed to use CCYY-MM-DD
+	// edih_view.php is supposed to use CCYY-MM-DD
+	$dts = $dt4 = $dte = '';
 	if ( preg_match('/(19|20)\d{2}\D[01][1-9]\D[0-3][0-9]/', $datestart) ) {
 		$dts = implode('', preg_split("/\D/", $datestart) );
 		if ( $dateend && preg_match('/(19|20)\d{2}\D[01][1-9]\D[0-3][0-9]/', $dateend) ) {
-			$dt4 = implode('', preg_split("/\D/", $dateend) );
+			$dte = implode('', preg_split("/\D/", $dateend) );
 		} else {
 			$dt4 = date_create(date('Y-m-d'));
-			$dte = date_format($dte, 'Ymd');
+			$dte = date_format($dt4, 'Ymd');
 		}
 		// php DateTime is poorly documented
+		$is_date = ($dts && $dte);
+		// debug
+		csv_edihist_log("edih_csv_to_html: dts $dts dte $dte isdate ".strval($is_date));
+		//
 		//
 	} elseif ($period) {
 		$dtstr1 = '';
@@ -601,7 +622,7 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&rsptype=$rsp&fmt=seg'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'RejCt') {
 						if ((int)$v > 0) {
-							$csv_html .= "<td><a class='sub' href='edih_main.php?chkdenied=yes&fname=$fn&ftype=$tp'>$v</a></td>".PHP_EOL;
+							$csv_html .= "<td><a class='rpt' href='edih_main.php?chkdenied=yes&fname=$fn&ftype=$tp'>$v</a></td>".PHP_EOL;
 						} else {
 							$csv_html .= "<td>$v</td>".PHP_EOL;
 						}
@@ -677,9 +698,9 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td>$v <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&pid=$pid&fmt=htm'>H</a>&nbsp;";
 						$csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&pid=$pid&fmt=seg'>T</a></td>".PHP_EOL;
 					} elseif ($k == 'Trace') {
-						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
+						$csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&trace=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
 					} elseif ($k == 'FileName') {
-						$csv_html .= "<td title='$v'><a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=htm'>H</a>&nbsp;";
+						$csv_html .= "<td title='$v'>File <a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=htm'>H</a>&nbsp;";
 						$csv_html .= "&nbsp;<a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=seg'>T</a></td>".PHP_EOL;
 					} else {
 						$csv_html .= "<td>$v</td>".PHP_EOL;

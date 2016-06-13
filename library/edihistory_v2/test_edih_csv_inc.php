@@ -1691,13 +1691,13 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f837') {
 	//
 	if ($ft == 'f835') {
 		// trace payment to status or claim
-		$search = array('s_val'=>$trace, 's_col'=>3, 'r_cols'=>array(1));
+		$search = array('s_val'=>$trace, 's_col'=>3, 'r_cols'=>'All');
 		$type = $tt;
 		$csv_type = 'file';
 	} elseif ($ft == 'f997') {
 		// trace ACK to batch file
 		$icn = (is_numeric($trace) && strlen($trace) >= 9) ? substr($trace, 0, 9) : $trace;
-		$search = array('s_val'=>$icn, 's_col'=>2, 'r_cols'=>array(1));
+		$search = array('s_val'=>$icn, 's_col'=>2, 'r_cols'=>'All');
 		$type = $tt;
 		$csv_type = 'file';
 	} elseif ($ft == 'f277') {
@@ -1742,8 +1742,10 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f837') {
 			} elseif ($csv_type == 'claim') {
 				$fn = $result[0][5];
 			} else {
-				$fn = $result[0][0];
+				$fn = $result[0][1];
 			}
+		} else {
+			csv_edihist_log("csv_file_by_trace: search failed $type csv $csv_type for trace $trace $from_type $to_type");
 		}
 	} else {
 		csv_edihist_log("csv_file_by_trace: error type $type csv $csv_type for trace $trace $from_type $to_type");
