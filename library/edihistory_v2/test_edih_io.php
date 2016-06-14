@@ -519,9 +519,9 @@ function edih_disp_x12trans() {
 			}
 		} elseif ($fn && $ft == 'f277') {
 			if ($clm01) {
-				$str_htm .= edih_277_response_html($fn, '', $clm01);
+				$str_htm .= edih_277_html($fn, $clm01);
 			} elseif ($bht03) {
-				$str_htm .= edih_277_response_html($fn, '', $bht03);
+				$str_htm .= edih_277_html($fn, $bht03);
 			} else {
 				$str_htm .= edih_display_text($fn, $ft);
 			}

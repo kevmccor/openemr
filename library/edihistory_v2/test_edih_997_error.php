@@ -30,6 +30,14 @@
 //require_once 'test_edih_csv_inc.php'; 
 //require_once 'test_edih_obj_2.php';
 
+/**
+ * Look up file name by control number
+ *
+ * @param string
+ * @param string
+ *
+ * @return string
+ */
 function edih_997_sbmtfile($icn, $filetype) {
 	//
 	if ( strlen($icn) == 13 ) {
@@ -110,8 +118,6 @@ function edih_997_errdata($obj997) {
 			//$idx = count($diag);
 			$idx++;
 			$iserr = true;
-			// debug
-			csv_edihist_log("edih_997_errdata: $substn index $idx $seg");
 			//
 			$diag['err'][$idx]['subtype'] = 'f'.$subtype;
 			$diag['err'][$idx]['substn'] = $substn;
