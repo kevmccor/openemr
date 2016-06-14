@@ -435,15 +435,21 @@ function edih_disp_x12trans() {
 	if ($qs == 'claim') {
 		if ($ft == 'f997') {
 			if ($trace && $rsptype){
-				$fnar = csv_file_by_trace($trace, 'f997', $rsptype);
-				if (is_array($fnar) && count($fnar)) {
-					foreach($fnar as $fa) {
-						$fname = $fa['FileName'];
-						$str_htm .= edih_display_text($fname, $rsptype, $trace, $err);
-					}
+				$fname = csv_file_by_trace($trace, $ft, $rsptype);
+				if ($fname) {
+					$str_htm .= edih_display_text($fname, $rsptype, $trace, $err);
 				} else {
 					$str_htm .= "<p>Did not find $trace in the $rsptype claims table.</p>";
 				}
+				//$fnar = csv_file_by_enctr($trace, $rsptype, $srchtype='ptidn' );
+				//if (is_array($fnar) && count($fnar)) {
+					//foreach($fnar as $fa) {
+						//$fname = $fa['FileName'];
+						//$str_htm .= edih_display_text($fname, $rsptype, $trace, $err);
+					//}
+				//} else {
+					//$str_htm .= "<p>Did not find $trace in the $rsptype claims table.</p>";
+				//}
 			}
 		} elseif ($ft == 'f837') {
 			// either transaction or file

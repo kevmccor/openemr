@@ -554,7 +554,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 	        .load(jQuery(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
 	});
-
+/* #csvTable  ****	*/
 	jQuery('#tblshow').on('click', 'a', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -563,7 +563,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
 	});
-		
+/* 		
 	jQuery('#tbrpt').on('click', 'a', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -571,7 +571,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
 	});
-
+*/
 /* **** links in dialog in uploads - processed div  ****	*/
 	jQuery('#processed').on('click', 'a', function(e) {
 		e.preventDefault();

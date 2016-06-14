@@ -444,6 +444,7 @@ function edih_277_csv_data($obj277) {
 			$stacct = array_values(array_unique($st['bht03']));
 			$clmct += count($stacct);
 			$st_icn = $st['icn'];  // same value as $obj277->envelopes['ISA']['icn']
+			$stn =  $st['stn'];
 			//
 			if ($tp == 'HR') { $ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $clmct; }
 			//
@@ -478,12 +479,14 @@ function edih_277_csv_data($obj277) {
 							if ($tp == 'HN') {
 								// 277
 								$ret_ar[$icn]['claim'][$cdx]['Status'] = '';
+								$ret_ar[$icn]['claim'][$cdx]['BHT03'] = $sar[3];
 							} elseif ($tp == 'HR') {
 								//276
 								$ret_ar[$icn]['claim'][$cdx]['ClaimID'] = '';
+								$ret_ar[$icn]['claim'][$cdx]['BHT03'] = sprintf("%s%04d", $st_icn, $stn);
 							}
 							//
-							$ret_ar[$icn]['claim'][$cdx]['BHT03'] = $sar[3];
+							
 							$ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
 							//
 							$ret_ar[$icn]['claim'][$cdx]['Payer'] = '';
@@ -850,10 +853,6 @@ function edih_278_csv_data($obj278) {
  * 
  * @uses csv_file_type()
  * @uses csv_search_record()
- * @uses csv_check_filepath()
- * @uses edih_x12_file()
- * @uses edih_get_segment()
- * @uses edih_x12_slice()
  * 
  * @param string    concatenate ISA13 and ST02 for source file
  * @param string    type of source file
@@ -866,6 +865,7 @@ function edih_rsp_st_match($rsp_trace, $file_type) {
 	if ( strlen($rsp_trace) == 13 ) {
 		$bticn = substr($rsp_trace, 0, 9);
 		$stn = substr($rsp_trace, -4);
+		$btsrch = $rsp_trace;
 	} else {
 		// debug
 		csv_edihist_log('edih_rsp_st_match() invalid trace argument '.$rsp_trace);
@@ -880,111 +880,16 @@ function edih_rsp_st_match($rsp_trace, $file_type) {
 		return $info_ar;
 	}
 	//
-	//$batch_srch = csv_search_record($ft, 'file', array('s_val'=>$bticn, 's_col'=>2, 'r_cols'=>array(1, 2)), "1" );
-	$btfn = csv_file_by_controlnum($ft, $bticn);
-	$bfullpath = ($btfn) ? csv_check_filepath($btfn, $ft) : '';
-	$batch_x12_obj = csv_check_x12_obj($btfn, $ft);
-	if ($batch_x12_obj && ('edih_x12_file' == get_class($batch_x12_obj))) {
-		$env_ar = $batch_x12_obj->edih_envelopes();
-		if ( isset($env_ar['ST']) ) {
-			$arg_ar = array('ISA13'=>$bticn, 'ST02'=>$stn);
-			$segs_ar = $batch_x12_obj->edih_x12_slice($arg_ar);
-			$delims = $batch_x12_obj->edih_delimiters();
-			$de = $delims['e'];
-			$info_ar['batch_name'] = $batch_x12_obj->edih_filename();
-			$info_ar['stn'] = $stn;
-		}
-	} else {
-		//
-		csv_edihist_log('edih_rsp_st_match() failed to open matching file '.$bticn);
-		return $info_ar;
+	$batch_srch = csv_search_record($ft, 'claim', array('s_val'=>$rsp_trace, 's_col'=>4, 'r_cols'=>'All'), '1' );
+	if (is_array($batch_srch) && count($batch_srch[0])) {
+		$info_ar['pt_name'] = $batch_srch[0][0]; // $batch_srch['PtName'];
+		$info_ar['clm01'] = ($rtp == 'f837') ? $batch_srch[0][2] : $batch_srch[0][4]; // $batch_srch['CLM01'] : $batch_srch['BHT03'];
+		$info_ar['svcdate'] = $batch_srch[0][1]; // ($rtp == 'f270') ? $batch_srch['ReqDate'] : $batch_srch['SvcDate'];
+		$info_ar['batch_name'] = $batch_srch[0][5]; // $batch_srch['FileName'];
 	}
-	if (!$segs_ar) {
-		csv_edihist_log('edih_rsp_st_match: failed to get ST envelope');
-		return $info_ar;
-	}
-	//
-	$pt_name = '';
-	$clm01 = '';
-	$svcdate = '';
-	//array ['pt_name'] ['clm01'] ['svcdate'] ['batch_name'] ['stn']
-	$nm1_ar = $batch_x12_obj->edih_get_segment('NM1', '', $segs_ar);
-	if ( empty($nm1_ar) ) {
-		$pt_name = '';
-	} else {
-		foreach($nm1_ar as $nm1) {
-			$sar = explode($de, $nm1);
-			$ctg = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';
-			if ($ctg == 'QC') {
-				$pt_name = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';
-				$pt_name .=(isset($sar[4]) && $sar[4]) ? ', '.$sar[4] : '';
-				$pt_name .=(isset($sar[5]) && $sar[5]) ? ' '.$sar[5] : '';
-				break;
-			} elseif ($ctg == 'IL') {
-				$pt_name = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';
-				$pt_name .=(isset($sar[4]) && $sar[4]) ? ', '.$sar[4] : '';
-				$pt_name .=(isset($sar[5]) && $sar[5]) ? ' '.$sar[5] : '';
-				break;
-			}
-		}
-		// 
-	}			
-	//
-	// now get clm01 transaction id per csv claim table
-	// 837=CLM01 27x=BHT03 
-	if ($ft == 'f837') {
-		$clm = $batch_x12_obj->edih_get_segment('CLM', '', $segs_ar);
-	} else {
-		$clm = $batch_x12_obj->edih_get_segment('BHT', '', $segs_ar);
-	}
-	if ( count($clm) ) {			
-		$clm_ar = (reset($clm) !== false) ? explode( $de, current($clm) ) : '';
-		if ($ft == 'f837') {
-			$clm01 = ( isset($clm_ar[1]) ) ? $clm_ar[1] : '';
-		} else {
-			$clm01 = ( isset($clm_ar[3]) ) ? $clm_ar[3] : '';
-		}
-	}
-	// now get the service/request date	
-	// for 827 and 276 expect a DTP*472*D8*CCYYMMDD
-	// for 270 and 278 expect service or request date
-	$dtp_ar = $batch_x12_obj->edih_get_segment('DTP', '', $segs_ar);
-	if ( empty($dtp_ar) ) {
-		$svcdate = '';
-	} else {
-		foreach($dtp_ar as $dtp) {
-			$sar = explode($de, $dtp);
-			if (isset($sar[1]) && $sar[1] == '472') {
-				// service date
-				$svcdate = (isset($sar[3]) && $sar[3]) ? substr($sar[3], 0, 8) : '';
-				break;
-			} elseif (isset($sar[1]) && $sar[1] == '431') {
-				// onset date
-				$svcdate = (isset($sar[3]) && $sar[3]) ? substr($sar[3], 0, 8) : '';
-				break;
-			} elseif (isset($sar[1]) && $sar[1] == '435') {
-				// admission date
-				$svcdate = (isset($sar[3]) && $sar[3]) ? substr($sar[3], 0, 8) : '';
-				break;
-			} elseif (isset($sar[1]) && $sar[1] == '598') {
-				// rejected date
-				$svcdate = (isset($sar[3]) && $sar[3]) ? substr($sar[3], 0, 8) : '';
-				break;
-			} elseif (isset($sar[1]) && ($sar[1] == '102' || $sar[1] == '291' || $sar[1] == '539')) {
-				// eligibility date
-				$svcdate = (isset($sar[3]) && $sar[3]) ? substr($sar[3], 0, 8) : '';
-				break;
-			}
-		}
-	}
-	//
-	$info_ar['pt_name'] = $pt_name;
-	$info_ar['clm01'] = $clm01;
-	$info_ar['svcdate'] = $svcdate;
 	//
 	return $info_ar;
 }
-
 
 
 /** Extract csv file data rows from 997/999 files
@@ -1106,7 +1011,7 @@ function edih_997_csv_data($obj997) {
 						$pt_info = edih_rsp_st_match($bht03syn, $rspsttype);
 						//return array ['pt_name']['svcdate']['clm01']['batch_name'];
 						if ( $pt_info ) {
-							$ptname = (isset($pt_info['pt_name'])) ? $pt_info['pt_name'] : 'Unknown';
+							$ptname = (isset($pt_info['pt_name']) && strlen($pt_info['pt_name'])) ? $pt_info['pt_name'] : 'Unknown';
 							$have_pt = true;
 						} else {
 							$ptname = 'Unknown';
@@ -1176,7 +1081,6 @@ function edih_997_csv_data($obj997) {
 						//array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');
 						$ret_ar[$icn]['claim'][$cdx]['PtName'] = $ptname;
 						$ret_ar[$icn]['claim'][$cdx]['RspDate'] = $svcdate;
-						
 						//
 						$ret_ar[$icn]['claim'][$cdx]['Trace'] = $bht03syn;
 						$ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
@@ -1221,7 +1125,7 @@ function edih_271_csv_data($obj270) {
 	$env_ar = $obj270->edih_envelopes();
 	$ft = csv_file_type( $obj270->edih_type() );
 	//
-	// $rsptype = array('HS'=>'270', 'HC'=>'837', 'HR'=>'276', 'HI'=>'278');
+	// $rsptype = array('HS'=>'270', 'HB'=>'271', 'HC'=>'837', 'HR'=>'276', 'HI'=>'278');
 	if ( !isset($env_ar['ST']) ) {
 		csv_edihist_log('edih_271_csv_data: envelope error '.$fn);
 		return $ret_ar;
@@ -1255,6 +1159,7 @@ function edih_271_csv_data($obj270) {
 			$hl = 0;
 			//
 			$isaicn = $st['icn'];
+			$stn = $st['stn'];
 			$has_le = false;
 			//
 			// for "claim" array
@@ -1282,10 +1187,11 @@ function edih_271_csv_data($obj270) {
 					$ret_ar[$icn]['claim'][$cdx]['Trace'] = '';
 					if ($isrsp || $ft == 'f271') {
 						$ret_ar[$icn]['claim'][$cdx]['Status'] = 'A';    // 271
+						$ret_ar[$icn]['claim'][$cdx]['BHT03'] = (isset($sar[3])) ? $sar[3] : '';  //bht03 = $sar[3];
 					} else {
 						$ret_ar[$icn]['claim'][$cdx]['InsBnft'] = '';    // 270
+						$ret_ar[$icn]['claim'][$cdx]['BHT03'] = sprintf("%s%04d", $isaicn, $stn);
 					}
-					$ret_ar[$icn]['claim'][$cdx]['BHT03'] = (isset($sar[3])) ? $sar[3] : '';  //bht03 = $sar[3];
 					$ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
 					$ret_ar[$icn]['claim'][$cdx]['Payer'] = '';
 					//

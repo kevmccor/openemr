@@ -30,6 +30,25 @@
 //require_once 'test_edih_csv_inc.php'; 
 //require_once 'test_edih_obj_2.php';
 
+function edih_997_sbmtfile($icn, $filetype) {
+	//
+	if ( strlen($icn) == 13 ) {
+		$bticn = substr($icn, 0, 9);
+		$stn = substr($icn, -4);
+	} else {
+		$bticn = $icn;
+	}
+	if (is_numeric($filetype)) {
+		$ftp = 'f'.$filetype;
+	} else {
+		$ftp = $filetype;
+	}
+	//
+	$btfn = csv_file_by_controlnum($ftp, $bticn);
+	$bfullpath = ($btfn) ? csv_check_filepath($btfn, $ftp) : '';
+	//
+	return $bfullpath;
+}
 
 /** 
  * Extract information on rejected files or transactions
@@ -50,6 +69,7 @@ function edih_997_errdata($obj997) {
 	$diag = array();
 	$diag['err'] = array();
 	$iserr = false;
+	$batchfile = '';
 	$idx = -1;
 	//
 	foreach($segments as $seg) {
@@ -63,6 +83,7 @@ function edih_997_errdata($obj997) {
 			$ackcode = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';
 			$acknote = (isset($sar[5]) && $sar[5]) ? $sar[5] : '';
 			//
+			
 			continue;
 		}
 		if (strncmp($seg, 'AK1'.$de, 4) == 0) {
@@ -90,7 +111,7 @@ function edih_997_errdata($obj997) {
 			$idx++;
 			$iserr = true;
 			// debug
-			csv_edihist_log("edih_997_errdata: index $idx $seg");
+			csv_edihist_log("edih_997_errdata: $substn index $idx $seg");
 			//
 			$diag['err'][$idx]['subtype'] = 'f'.$subtype;
 			$diag['err'][$idx]['substn'] = $substn;
@@ -189,9 +210,11 @@ function edih_997_err_report($err_array) {
 	}
 	//		
 	$str_html = "";
+	$batchfile = "";
 	//
 	if (isset($err_array['summary'])) {
 		extract($err_array['summary'], EXTR_OVERWRITE);
+		//		
 		$str_html .= "<p class='rpt997'>".PHP_EOL;
 		$str_html .= (isset($sub_icn)) ? "<em>Submitted ICN</em> $sub_icn" : "Submitted file unknown";
 		$str_html .= (isset($subdate)) ? " <em>Date</em> ".edih_format_date($subdate) : "";
@@ -223,32 +246,39 @@ function edih_997_err_report($err_array) {
 		//
 		$ct = $k + 1;
 		$icn = (isset($sub_icn)) ? $sub_icn : '';
+		$stn = (isset($v['substn'])) ? $v['substn'] : '';
+		$rtp = (isset($v['subtype'])) ? $v['subtype'] : '';
+		//
 		$str_html .= "<p class='err997'>".PHP_EOL;
 		$str_html .= "Error $ct ";
-		if (isset($v['substn']) && isset($v['subtype'])) {
-			$str_html .= "<em>ST</em> ".$v['substn']."<br />";
-			$stn = $v['substn']; $rtp = $v['subtype']; 
-			$trace = ($icn) ? sprintf("%s%04d", $icn, $stn) : "";
-			$trn_ar = ($trace) ? edih_rsp_st_match($trace, $rtp) : "";
+		$str_html .= ($stn) ? "<em>ST</em> $stn <br />" : "<br />";
+		//
+		if ($icn && $stn && $rtp) {
+			$trc = sprintf("%s%04d", $icn, $stn);
+			$srch = array('s_val'=>$trc, 's_col'=>4,'r_cols'=>'All');
+			// array('s_val'=>'0024', 's_col'=>9, 'r_cols'=>array(1, 2, 7)), 
+			$trn_ar = csv_search_record($rtp, 'claim', $srch);
 			if (is_array($trn_ar) && count($trn_ar)) {
-				$pt_name = $trn_ar['pt_name'];
-				$clm01 = $trn_ar['clm01'];
-				$svcdate = $trn_ar['svcdate'];
-				$btfn = $trn_ar['batch_name'];
-				$str_html .= "$pt_name $svcdate $clm01 <em>Trace</em> $stn <a class='rpt' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
+				//'f837':array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'BHT03', 'FileName', 'Fee', 'PtPaid', 'Provider' );
+				//'f276':array('PtName', 'SvcDate', 'CLM01', 'ClaimID', 'BHT03', 'FileName', 'Payer', 'Trace'); break;
+				//'f270':array('PtName', 'ReqDate', 'Trace', 'InsBnft', 'BHT03', 'FileName', 'Payer'); break;
+				$pt_name = $trn_ar[0][0]; // $trn_ar['PtName'];
+				$clm01 = ($rtp == 'f837') ? $trn_ar[0][2] : $trn_ar[0][4]; // $trn_ar['CLM01'] : $trn_ar['BHT03'];
+				$svcdate = $trn_ar[0][1]; // ($rtp == 'f270') ? $trn_ar['ReqDate'] : $trn_ar['SvcDate'];
+				$btfn = $trn_ar[0][5]; // $trn_ar['FileName'];
+				$str_html .= "$pt_name $svcdate <em>Trace</em> <a class='rpt' href='edih_main.php?gtbl=claim&fname=$btfn&ftype=$rtp&pid=$clm01&fmt=seg'>$clm01</a> <br />".PHP_EOL;
 			} else {
-				$str_html .= "Unable to locate transaction <a class='rpt' href='edih_main.php?gtbl=claim&ftype=f997&rsptype=$rtp&trace=$trace&fmt=seg'>$trace</a> <br />".PHP_EOL;
+				$str_html .= "Unable to locate transaction  <em>Trace</em> $trc <br />".PHP_EOL;
 			}
 		} else {
-			$str_html .= "Unable to trace, did not get type or st number <br />".PHP_EOL;
+			$str_html .= "Unable to trace, did not get all of icn, type, and st number <br />".PHP_EOL;
 		}
 		//
 		$str_html .= (isset($v['ctxacct'])) ? "<em>Transaction ID</em> ".$v['ctxacct'] : "";
-		$str_html .= (isset($v['ik3segid'])) ? " <em>Segment</em> ".$v['ik3segid'] : "";
+		$str_html .= (isset($v['ik3segid'])) ? " Segment <em>ID</em> ".$v['ik3segid'] : "";
 		$str_html .= (isset($v['ik3segpos'])) ? " <em>Position</em> ".$v['ik3segpos'] : "";
 		$str_html .= (isset($v['ik3loop'])) ? " <em>Loop</em> ".$v['ik3loop'] : "";
-		$str_html .= (isset($v['ik3code'])) ? " <em>Code</em> ".$v['ik3code'].PHP_EOL : PHP_EOL;
-		$str_html .= (isset($v['ik3code'])) ? "<br /> ".$v['ik3code']." ".edih_997_code_text('ak304',$v['ik3code'])."<br />" : "";
+		$str_html .= (isset($v['ik3code'])) ? "<br /> <em>Code</em> ".$v['ik3code']." ".edih_997_code_text('ak304',$v['ik3code'])."<br />" : "<br />";
 		//
 		$str_html .= (isset($v['ctxid'])) ? "Situational ".PHP_EOL."<em>Segment</em> ".$v['ctxid'] : "";
 		$str_html .= (isset($v['ctxpos'])) ? " <em>Position</em> ".$v['ctxpos'] : ""; 
@@ -257,9 +287,8 @@ function edih_997_err_report($err_array) {
 		//
 		$str_html .= (isset($v['ik401'])) ?  "Data Element <em>element</em> ".$v['ik401'] : "";
 		$str_html .= (isset($v['ik402'])) ?  " <em>ref</em> ".$v['ik402'] : "";
-		$str_html .= (isset($v['ik403'])) ?  " <em>code</em> ".$v['ik403'] : "";
 		$str_html .= (isset($v['ik404'])) ?  " <em>data</em> ".$v['ik404'] : "";
-		$str_html .= (isset($v['ik403'])) ? "<br />".$v['ik403']." ".edih_997_code_text('ak403',$v['ik403'])."<br />" : "";
+		$str_html .= (isset($v['ik403'])) ? "<br /> <em>code</em> ".$v['ik403']." ".edih_997_code_text('ak403',$v['ik403'])."<br />" : "<br />";
 		//
 		$str_html .= (isset($v['ik501']) && $v['ik501']) ?  "<em>Status</em> ".$v['ik501']." ".edih_997_code_text('ak501',$v['ik501'])."<br />" : "";
 		$str_html .= (isset($v['ik502']) && $v['ik502']) ?  " <em>code</em> ".$v['ik502']." ".edih_997_code_text('ak502',$v['ik502'])."<br />" : "";
