@@ -1594,7 +1594,7 @@ function csv_file_by_enctr($clm01, $filetype='f837') {
 			while (($data = fgetcsv($fh1, 1024, ",")) !== FALSE) {
 				// check for a match
 				if (strpos($data[2], $e)) {
-					$te = substr($data[2], strpos($data[2], $e));
+					$te = substr($data[2], strpos($data[2],'-')+1);
 					if (strcmp($te, $e) === 0) {
 						for ($i=0; $i<$hct; $i++) { $val[$h_ar[$i]] = $data[$i]; }
 						$ret_ar[] = $val;  // array_combine($h_ar, $data);

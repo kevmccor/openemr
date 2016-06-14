@@ -302,6 +302,7 @@ function edih_claim_history($encounter) {
 		$btar = csv_file_by_enctr($e, $tp);
 		//
 		if (is_array($btar) && count($btar)) {
+			$ch_html .= "<tr class='ch837'><td colspan=4>837 Claim ".count($btar)."</td></tr>".PHP_EOL;
 			$ch_html .= "<tr class='chhead'>".PHP_EOL;
 			$ch_html .= "<td>Name</td><td>SvcDate</td><td>CLM01</td><td>File</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
@@ -328,8 +329,8 @@ function edih_claim_history($encounter) {
 		$tp = 'f997';
 		$f997ar = csv_file_by_enctr($e, $tp);
 		//
-		
 		if (is_array($f997ar) && count($f997ar)) {
+			$ch_html .= "<tr class='ch997'><td colspan=4>Ack 997/999 ".count($f997ar)."</td></tr>".PHP_EOL;
 			$ch_html .= "<tr class='chhead'>".PHP_EOL;
 			$ch_html .= "<td colspan=3>Acknowledgement File</td><td>Notes</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
@@ -356,6 +357,7 @@ function edih_claim_history($encounter) {
 		$f277ar = csv_file_by_enctr($e, $tp);
 		//
 		if (is_array($f277ar) && count($f277ar)) {
+			$ch_html .= "<tr class='ch277'><td colspan=4>Status 277 ".count($f277ar)."</td></tr>".PHP_EOL;
 			$ch_html .= "<tr class='chhead'>".PHP_EOL;
 			$ch_html .= "<td>Response</td><td>Status</td><td>File</td><td>ClaimID</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
@@ -372,7 +374,7 @@ function edih_claim_history($encounter) {
 			}
 		} else {
 			$ch_html .= "<tr class='ch277'>";
-			$ch_html .= "<td colspan=4>277 Status-- Nothing found for $e</td>".PHP_EOL;
+			$ch_html .= "<td colspan=4>Status 277 -- Nothing found for $e</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
 		}
 	}
@@ -382,6 +384,7 @@ function edih_claim_history($encounter) {
 		$f835ar = csv_file_by_enctr($e, $tp);
 		//
 		if (is_array($f835ar) && count($f835ar)) {
+			$ch_html .= "<tr class='ch835'><td colspan=4>Payment 835 ".count($f835ar)."</td></tr>".PHP_EOL;
 			$ch_html .= "<tr class='chhead'>".PHP_EOL;
 			$ch_html .= "<td>Response</td><td>Status</td><td>Trace</td><td>Payer</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
@@ -391,7 +394,7 @@ function edih_claim_history($encounter) {
 				// array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer');
 				$ch_html .= "<tr class='ch835'>";
 				//
-				$ch_html .= "<td>Claim Payment</td>".PHP_EOL;
+				$ch_html .= "<td>{$ch['PtName']}</td>".PHP_EOL;
 				$ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&summary=no'>{$ch['Status']}</a></td>".PHP_EOL;
 				$ch_html .= "<td><a href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&trace={$ch['Trace']}&fmt=htm'>{$ch['Trace']}</a></td>".PHP_EOL;
 				$ch_html .= "<td title=$msg>{$ch['Payer']}</td>".PHP_EOL;
@@ -400,7 +403,7 @@ function edih_claim_history($encounter) {
 			}
 		} else {
 			$ch_html .= "<tr class='ch835'>";
-			$ch_html .= "<td colspan=4>835 Payment -- Nothing found for $e</td>".PHP_EOL;
+			$ch_html .= "<td colspan=4>Payment 835 -- Nothing found for $e</td>".PHP_EOL;
 			$ch_html .= "</tr>".PHP_EOL;
 		}
 		//
