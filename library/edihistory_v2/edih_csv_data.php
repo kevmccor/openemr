@@ -475,9 +475,9 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 	// given dates shold be in CCYY-MM-DD or CCYY/MM/DD format
 	// edih_view.php is supposed to use CCYY-MM-DD
 	$dts = $dt4 = $dte = '';
-	if ( preg_match('/(19|20)\d{2}\D[01][1-9]\D[0-3][0-9]/', $datestart) ) {
+	if ( preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $datestart) ) {
 		$dts = implode('', preg_split("/\D/", $datestart) );
-		if ( $dateend && preg_match('/(19|20)\d{2}\D[01][1-9]\D[0-3][0-9]/', $dateend) ) {
+		if ( $dateend && preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $dateend) ) {
 			$dte = implode('', preg_split("/\D/", $dateend) );
 		} else {
 			$dt4 = date_create(date('Y-m-d'));
