@@ -21,10 +21,7 @@
  * 
  * 
  */
- 
- // needed files
- require_once('test_edih_csv_inc.php');
- require_once('test_edih_obj_2.php');
+
  
 /**
  * increment loop values ($lpval is a reference)
