@@ -159,8 +159,14 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 		}
 		//		
 		if ( strncmp('SBR'.$de, $seg, 4) === 0 ) {
-			$loopid = '2320'; $title = 'Other Subscriber';
-			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			if ($loopid == '2000B') {
+				$title = 'Subscriber';
+				$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			} else {
+				$title = 'Other Subscriber';
+				$loopid = '2320';
+				$str_html .= "<tr><td class='btloop' title='$title'> -- </td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
+			}
 			$title = '';
 			continue;			
 		}
@@ -189,7 +195,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 		if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
 			$sar = explode($de, $seg);
 			$nm101 = ( isset($sar[1]) ) ? $sar[1] : '';
-			if ( $loopid == 'Begin' || strcmp($loopid, '2320') < 0 ) {
+			if ( $loopid == 'Begin' || strcmp(substr($loopid,0,4), '2320') < 0 ) {
 				if ($nm101 == '41') {
 					$loopid = '1000A'; $title = 'Submitter';
 				} elseif ($nm101 == '40') {
@@ -221,7 +227,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 				} elseif ($nm101 == '45') { 
 					$loopid = '2310F'; $title = 'Ambulance dropoff';
 				} 
-			} elseif ( strcmp($loopid, '2400')  < 0 ) {
+			} elseif ( strcmp(substr($loopid,0,4), '2400')  < 0 ) {
 				if ($nm101 == 'IL') { 
 					$loopid = '2330A'; $title = 'Other Subscriber';
 				} elseif ($nm101 == 'PR') { 
