@@ -165,14 +165,14 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 					$dd_str .= ($ins) ? " &nbsp;$ins" : "";
 					$dd_str .= ($clm) ? " &nbsp;$clm" : ""; 
 					$dd_str .= ($bht03) ? " &nbsp;<em>view</em> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=htm'>H</a>&nbsp; <a class='seg' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=seg'>T</a>&nbsp;" : "";
-					$dd_str .= ($pid) ? " &nbsp;<em>trace</em> <a class='sub' href='edih_main.php?gtbl=claim&rsptype=f837&trace=$pid&fmt=seg'>$pid</a>" : "";
-					$dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?gtbl=claim&rsptype=f278&trace=$trc&fmt=seg'><em>trace</em></a>" : "";
+					$dd_str .= ($pid) ? " &nbsp;<em>trace</em> <a class='sub' href='edih_main.php?gtbl=claim&ftype=$ft&rsptype=f837&trace=$pid&fmt=seg'>$pid</a>" : "";
+					$dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?gtbl=claim&ftype=$ft&rsptype=f278&trace=$trc&fmt=seg'><em>trace</em></a>" : "";
 				} elseif ($ft == 'f835') {
 					$dd_str .= ($clm) ? " &nbsp;<em>Claim ID</em> $ins" : "";
 					$dd_str .= ($ins) ? " &nbsp;<em>InsLevel</em> $ins" : ""; 
 					$dd_str .= ($pid) ? " &nbsp;$pid <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=htm'>H</a> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=seg'>T</a>" : "";
 				}  elseif ($ft == 'f997') {
-					$dd_str .= ($trc) ? " &nbsp;<a class='$cls' title='$trc' href='edih_main.php?gtbl=claim&trace=$trc&rsptype=$typ&errseg=$err&fmt=seg'><em>trace</em></a>" : "";
+					$dd_str .= ($trc) ? " &nbsp;<a class='$cls' title='$trc' href='edih_main.php?gtbl=claim&ftype=$ft&trace=$trc&rsptype=$typ&errseg=$err&fmt=seg'><em>trace</em></a>" : "";
 					$dd_str .= ($err) ? " &nbsp;".substr($err, 0, 8) : "";
 				} else {
 					$dd_str .= ($pid) ? " &nbsp;<a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=seg'>$pid</a>" : "";
