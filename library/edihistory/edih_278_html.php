@@ -23,7 +23,7 @@
  */
 
 //
-//require_once("$srcdir/edihistory_v2/codes/edih_271_code_class.php");
+//require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 //
 /*
  * HTML display of x12 278 file 

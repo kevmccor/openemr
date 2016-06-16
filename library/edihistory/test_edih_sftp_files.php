@@ -18,7 +18,7 @@
  * 		-- remove the files from the download directory
  * 		(alt) -- this is where you would call maybe edih_sftp_upload()
  *
- *  4.  At this point the sftp files will be in the edihistory/[type] directories
+ *  4.  At this point the sftp files will be in the edi/history/[type] directories
  *  	and the "Process" button will run the script to parse the files and create csv table rows
  *
  */

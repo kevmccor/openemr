@@ -24,8 +24,8 @@
 
  	
 // lookup codes
-//require_once("$srcdir/edihistory_v2/codes/edih_835_code_class.php");
-//require_once("$srcdir/edihistory_v2/codes/edih_271_code_class.php");
+//require_once("$srcdir/edihistory/codes/edih_835_code_class.php");
+//require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 /**
  * callback to round floats to 2 digit precision

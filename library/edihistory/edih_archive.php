@@ -1,8 +1,8 @@
 <?php
-/*************  ibr_archive.php
+/*************  edih_archive.php
  * Author:  Kevin McCormick   Longview Texas  
  * 
- * Copyright 2012 Kevin McCormick    Longview, Texas
+ * Copyright 2016 Kevin McCormick    Longview, Texas
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,31 +33,9 @@
 // from admin at rune-city dot com;  found in php manual
 //if (!defined('SITE_IN')) die('Direct access not allowed!');
 
-/* This file handles archiving of edi x12 files and the related
- * entries in csv tables.  Once archived, the files are accessible
- * only by manually opening the archive and extracting the file.
- *
- * The plan is:
- * (1) select an archive period from the dropdown list
- * (2) click 'Submit' to submit the archive data
- * ===
- * (3) this file will create the archive comparison date
- * (4) each csv file with contents will be opened and parsed in turn
- * == (a) check the files.csv for filenames where date < archive date
- *         put the 'FileName' value in an array of archive file names 
- * == (b) copy the files and claims csv file rows where the 'FileName'
- *         value is not in the archive file names array
- *         -- this will be the new fnnn_files.csv or fnnn_claims.csv tables
- * == (c) move the files in the archive file names array
- *         to a .zip archive and delete the files from the fnnn directory
- * == (d) move the old csv files
- * == (e) write the new fnnn_files.csv and fnnn_claims.csv tables
- * 
- *
- */
 //
 // required functions
-//require_once("$srcdir/edihistory_v2/test_edih_csv_inc.php");
+//require_once("$srcdir/edihistory/test_edih_csv_inc.php");
 //
 // constant DS = DIRECTORY_SEPARATOR
 

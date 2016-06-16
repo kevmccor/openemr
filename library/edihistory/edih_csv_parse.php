@@ -32,12 +32,6 @@
  * 
  * The CSV data column headers are the array keys for each EDI file type.
  */
- 
-// codes used in 997/999 files;
-//require_once './codes/edih_997_codes.php';
-//require_once 'test_edih_csv_inc.php'; 
-//require_once 'test_edih_obj_2.php';
-
 
 /**
  * Provide a more user-friendly date in csv tables
@@ -448,7 +442,8 @@ function edih_277_csv_data($obj277) {
 			//
 			if ($tp == 'HR') { $ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $clmct; }
 			//
-			for($i=0; $i<$clmct; $i++) {
+			//for($i=0; $i<$clmct; $i++) {
+			for($i=0; $i<count($stacct); $i++) {
 				//
 				$asegs = $obj277->edih_x12_transaction($stacct[$i]);
 				//

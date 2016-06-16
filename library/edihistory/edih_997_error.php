@@ -27,8 +27,6 @@
  
 // codes used in 997/999 files;
 //require_once './codes/edih_997_codes.php';
-//require_once 'test_edih_csv_inc.php'; 
-//require_once 'test_edih_obj_2.php';
 
 /**
  * Look up file name by control number

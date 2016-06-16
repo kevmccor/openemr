@@ -56,22 +56,22 @@ if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|");
 if (!defined("DS")) define("DS", DIRECTORY_SEPARATOR);
 // 
 // path will be "$srcdir/edihistory/filename.php"
-require_once("$srcdir/edihistory_v2/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php"); 
-require_once("$srcdir/edihistory_v2/edih_io.php");         //dirname(__FILE__) . "/edihist/ibr_io.php");
-require_once("$srcdir/edihistory_v2/edih_x12file_class.php"); 
-require_once("$srcdir/edihistory_v2/edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php"); 
-require_once("$srcdir/edihistory_v2/edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php"); 
-require_once("$srcdir/edihistory_v2/edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php");
-require_once("$srcdir/edihistory_v2/edih_997_error.php");
-require_once("$srcdir/edihistory_v2/edih_segments.php");
-require_once("$srcdir/edihistory_v2/edih_archive.php");        //dirname(__FILE__) . "/edihist/ibr_batch_read.php");
-require_once("$srcdir/edihistory_v2/edih_271_html.php");          //dirname(__FILE__) . "/edihist/ibr_ack_read.php");
-require_once("$srcdir/edihistory_v2/edih_277_html.php");           
-require_once("$srcdir/edihistory_v2/edih_278_html.php");
-require_once("$srcdir/edihistory_v2/edih_835_html.php");			//dirname(__FILE__) . "/edihist/ibr_era_read.php");
-require_once("$srcdir/edihistory_v2/codes/edih_271_code_class.php");      //dirname(__FILE__) . "/edihist/ibr_code_arrays.php");
-require_once("$srcdir/edihistory_v2/codes/edih_835_code_class.php"); //dirname(__FILE__) . "/edihist/ibr_status_code_arrays.php"); 
-require_once("$srcdir/edihistory_v2/codes/edih_997_codes.php");
+require_once("$srcdir/edihistory/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php"); 
+require_once("$srcdir/edihistory/edih_io.php");         //dirname(__FILE__) . "/edihist/ibr_io.php");
+require_once("$srcdir/edihistory/edih_x12file_class.php"); 
+require_once("$srcdir/edihistory/edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php"); 
+require_once("$srcdir/edihistory/edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php"); 
+require_once("$srcdir/edihistory/edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php");
+require_once("$srcdir/edihistory/edih_997_error.php");
+require_once("$srcdir/edihistory/edih_segments.php");
+require_once("$srcdir/edihistory/edih_archive.php");        //dirname(__FILE__) . "/edihist/ibr_batch_read.php");
+require_once("$srcdir/edihistory/edih_271_html.php");          //dirname(__FILE__) . "/edihist/ibr_ack_read.php");
+require_once("$srcdir/edihistory/edih_277_html.php");           
+require_once("$srcdir/edihistory/edih_278_html.php");
+require_once("$srcdir/edihistory/edih_835_html.php");			//dirname(__FILE__) . "/edihist/ibr_era_read.php");
+require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //dirname(__FILE__) . "/edihist/ibr_code_arrays.php");
+require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //dirname(__FILE__) . "/edihist/ibr_status_code_arrays.php"); 
+require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 //
 // php may output line endings with included files
 ob_clean();

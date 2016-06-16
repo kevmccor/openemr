@@ -24,9 +24,6 @@
  * @package ediHistory
  */
 
-// functions to parse csv data from files
-//require_once("$srcdir/edihistory_v2/test_edih_csv_parse.php");
-//require_once("$srcdir/edihistory_v2/test_edih_csv_inc.php");
 
 /**
  * Display csv table data in an HTML table for newly processed files

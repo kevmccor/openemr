@@ -1,6 +1,6 @@
 <?PHP
 /**
- * test_edih_uploads.php
+ * edih_uploads.php
  * Copyright 2012 Kevin McCormick
  *
  * This program is distributed in the hope that it will be useful,

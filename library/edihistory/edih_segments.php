@@ -1,6 +1,6 @@
 <?php
 /*
- * test_edih_2segments_text.php
+ * edih_segments.php
  * 
  * Copyright 2016 Kevin McCormick <kevin@kt61p>
  * 
@@ -19,7 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
- * 
+ * @author Kevin McCormick
+ * @link: http://www.open-emr.org
+ * @package OpenEMR
+ * @subpackage ediHistory
  */
 
  
