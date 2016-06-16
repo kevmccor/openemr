@@ -499,7 +499,6 @@ function edih_disp_x12trans() {
 					// html display not available, use segments
 					$str_htm .= edih_display_text($fn, $ft, $bht03);
 				}
-					
 			}
 		}
 	} elseif ($qs == 'hist') {
@@ -518,7 +517,15 @@ function edih_disp_x12trans() {
 				$str_htm .= edih_display_text($fn, $ft);
 			}
 		} elseif ($fn && $ft == 'f277') {
-			if ($clm01) {
+			if ($trace && $rsptype) {
+				$fname = csv_file_by_trace($trace, $ft, $rsptype);
+				if ($fname) {
+					$str_htm .= edih_display_text($fname, $rsptype, $trace);
+				} else {
+					$str_htm .= "<p>Did not find $trace in type $rsptype csv_claims table</p>".PHP_EOL;
+					csv_edihist_log("edih_disp_x12trans: Did not find $trace in type $rsptype csv_claims table");
+				}
+			} elseif ($clm01) {
 				$str_htm .= edih_277_html($fn, $clm01);
 			} elseif ($bht03) {
 				$str_htm .= edih_277_html($fn, $bht03);
@@ -528,7 +535,7 @@ function edih_disp_x12trans() {
 		} elseif ($fn && $ft == 'f835') {			
 			if ($clm01) {
 				if ($summary == 'yes') {
-					$str_htm .= edih_835_html($fn, '', $clm01='', true);
+					$str_htm .= edih_835_html($fn, '', $clm01, true);
 				} else {
 					$str_htm .= edih_835_html($fn, '', $clm01);
 				}
