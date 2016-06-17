@@ -291,7 +291,7 @@ function edih_claim_history($encounter) {
 		return "failed to get csv table names";
 	}
 	//
-	$ch_html .= "<table class='clmhist' columns=4><caption>Encounter Record for $e</caption>";
+	$ch_html = "<table class='clmhist' columns=4><caption>Encounter Record for $e</caption>";
 	$ch_html .= "<tbody>".PHP_EOL;
 	//
 	if (in_array('f837', $rtypes)) {
