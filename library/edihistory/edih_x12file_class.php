@@ -1,6 +1,6 @@
 <?php
 /*
- * edih_x12_file.php
+ * edih_x12file_class.php
  *
  * Copyright 2014 Kevin McCormick Longview, Texas
  *

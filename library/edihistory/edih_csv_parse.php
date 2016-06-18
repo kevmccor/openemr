@@ -1,8 +1,8 @@
 <?php
 /*
- * test_edih_csv_parse.php
+ * edih_csv_parse.php
  *
- * Copyright 2014 Kevin McCormick Longview, Texas
+ * Copyright 2016 Kevin McCormick Carrollton, Texas
  *
  *
  * This program is distributed in the hope that it will be useful,

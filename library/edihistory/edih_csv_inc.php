@@ -1031,23 +1031,34 @@ function edih_format_telephone ($str_val) {
 /**
  * order MM DD YYYY values and insert slashes in eight-digit dates
  * 
- * US MM/DD/YYYY or general YYYY/MM/DD 
+ * US MM/DD/YYYY or general YYYY-MM-DD 
  *  
  * @param string $str_val   the eight-digit date
- * @param string $pref      if 'US' (default) anything else means YYYY/MM/DD
+ * @param string $pref      if 'US' (default) anything else means YYYY-MM-DD
  * @return string           the date with slashes
  */
-function edih_format_date ($str_val, $pref = "Ymd") { 	
+function edih_format_date ($str_val, $pref = "Y-m-d") { 	
 	$strdt = (string)$str_val;
 	$strdt = preg_replace('/\D/', '', $strdt);
+	$dt = '';
+	if (strlen($strdt) == 6) {
+		$tdy = date('Ymd');
+		if ($pref == "US") {
+			// assume mmddyy
+			$strdt = substr($tdy,0,2).substr($strdt,-2).substr($strdt,0,4);
+		} else {
+			// assume yymmdd
+			$strdt = substr($tdy,0,2).$strdt;
+		}
+	}
 	if ($pref == "US") {
 		$dt = substr($strdt,4,2) . "/" . substr($strdt,6) . "/" . substr($strdt,0,4);
 	} else {
-		$dt = substr($strdt,0,4) . "/" . substr($strdt,4,2) . "/" . substr($strdt,6);
+		$dt = substr($strdt,0,4) . "-" . substr($strdt,4,2) . "-" . substr($strdt,6);
 	}
 	return $dt;
-} 
-  
+}
+
 /**
  * format monetary amounts with two digits after the decimal place
  * 
