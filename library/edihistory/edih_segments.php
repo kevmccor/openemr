@@ -970,33 +970,40 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 	//
 	if ($claimid) {
 		// claimid can be for transaction, payment, or error response
-		// claimid alone can be clm01 or bht03, if trace=true, expect trn02 for claimid
-		foreach($env_ar['ST'] as $st) {
-			if ( in_array($claimid, $st['acct']) ) {
-				if ($errs) {
-					$arg_ar = array('ST02'=>$st['stn'], 'ISA13'=>$st['icn'], 'GS06'=>$st['gsn'], 'keys'=>true);
+		if ($trace && array_key_exists($claimid, $env_ar['ISA'])) {
+			$arg_ar = array('ISA13'=>$claimid, 'keys'=>true);
+			$segments = $x12obj->edih_x12_slice($arg_ar);
+		} else {
+			// claimid alone can be clm01 or bht03, if trace=true, expect trn02 for claimid
+			foreach($env_ar['ST'] as $st) {
+				
+				if ($trace && $claimid == $st['trace']) {
+					$arg_ar = array('ISA13'=>$st['icn'], 'GS06'=>$st['gsn'], 'trace'=>$claimid, 'keys'=>true);
 					$segments = $x12obj->edih_x12_slice($arg_ar);
-				} else {
-					// request for individual transaction segments
-					$segments = $x12obj->edih_x12_transaction($claimid);
-				}
-				break;
-			} elseif ( in_array($claimid, $st['bht03']) ) {
-				// also possible that bht03 number is given for claimid
-				// this will likely be a 27x
-				if ($errs) {
-					$arg_ar = array('ST02'=>$st['stn'], 'ISA13'=>$st['icn'], 'GS06'=>$st['gsn'], 'keys'=>true);
-					$segments = $x12obj->edih_x12_slice($arg_ar);
-				} else {
-					$segments = $x12obj->edih_x12_transaction($claimid);
-				}
-				$bht03 = $claimid;
-				break;
-			} elseif ($trace && $claimid == $st['trace']) {
-				$arg_ar = array('ISA13'=>$st['icn'], 'GS06'=>$st['gsn'], 'trace'=>$claimid, 'keys'=>true);
-				$segments = $x12obj->edih_x12_slice($arg_ar);
-				break;
-			}			
+					break;
+	
+				} elseif ( in_array($claimid, $st['acct']) ) {
+					if ($errs) {
+						$arg_ar = array('ST02'=>$st['stn'], 'ISA13'=>$st['icn'], 'GS06'=>$st['gsn'], 'keys'=>true);
+						$segments = $x12obj->edih_x12_slice($arg_ar);
+					} else {
+						// request for individual transaction segments
+						$segments = $x12obj->edih_x12_transaction($claimid);
+					}
+					break;
+				} elseif ( in_array($claimid, $st['bht03']) ) {
+					// also possible that bht03 number is given for claimid
+					// this will likely be a 27x
+					if ($errs) {
+						$arg_ar = array('ST02'=>$st['stn'], 'ISA13'=>$st['icn'], 'GS06'=>$st['gsn'], 'keys'=>true);
+						$segments = $x12obj->edih_x12_slice($arg_ar);
+					} else {
+						$segments = $x12obj->edih_x12_transaction($claimid);
+					}
+					$bht03 = $claimid;
+					break;
+				} 			
+			}
 		}
 	} else {
 		$segments = $segs_ar;
@@ -1075,7 +1082,7 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 			break;		
 	}
 	//
-	$capstr .= ($claimid) ? " <em>Claim ID:</em> $claimid" : "";
+	$capstr .= ($claimid) ? " <em>ID:</em> $claimid" : "";
 	//
 	$str_html .= "<table id=$tbl_id cols=3 class='segtxt'><caption>$capstr</caption>".PHP_EOL;
 	$str_html .= "<thead>".PHP_EOL;

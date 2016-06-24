@@ -668,6 +668,8 @@ function edih_disp_x12file() {
 	if ( $format == 'seg' ) {
 		if ($ft == 'f835' && $trace) {
 			$str_htm .= edih_display_text($fn, $ft, $trace, true);
+		} elseif ($icn) {
+			$str_htm .= edih_display_text($fn, $ft, $icn, true);
 		} else {
 			$str_htm .= edih_display_text($fn, $ft);
 		}			
