@@ -77,8 +77,8 @@ function edih_archive_report($period = '') {
 		$row_ct = 0;
 		$dir_kb = '';
 		$subdir_ct = 0;
-		$fn835 = '';
-		$fn835_ct = 0;
+		$fntp = '';
+		$fntp_ct = 0;
 		//
 		$tp = $param['type'];
 		$fdir = $param['directory'];
@@ -88,10 +88,11 @@ function edih_archive_report($period = '') {
 			if (is_array($dir_ar) && ((count($dir_ar)-2) > 0)) {
 				$str_html .= "<H3><em>Type</em> ".$tp."</H3>".PHP_EOL;
 				$str_html .= "<ul>".PHP_EOL;
-				$dir_ct = count($dir_ar) - 2;
+				$dir_ct = count($dir_ar);
 				foreach($dir_ar as $fn) {
-					if ( $fn == '.' || $fn == '..' ) { continue; }
-					if ( strpos($fn, DS) !== false ) { $subdir_ct++; }
+					if ($fn == 'README.txt') { $dir_ct--; continue; }
+					if (substr($fn, 0, 1) == '.') { $dir_ct--; continue; }
+					if (is_dir($fdir.DS.$fn)) { $subdir_ct++; $dir_ct--; continue; }
 					$dir_sz += filesize($fdir.DS.$fn);
 				}
 				//
@@ -99,15 +100,17 @@ function edih_archive_report($period = '') {
 				$row_ct = (is_array($csv_ar)) ? count($csv_ar) : 0;
 				if ($row_ct) {
 					foreach($csv_ar as $row) {
-						if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) { $old_ct++; }
+						// tally amount of claim transactions in the files
 						if ($tp == 'f837') { $clm_ct += $row['Claim_ct']; }
 						if ($tp == 'f277') { $clm_ct += ($row['Accept'] + $row['Reject']); }
-						if ($tp == 'f835') {
-							$clm_ct += $row['Claim_ct'];
-							if ($fn835 !== $row['FileName']) {
-								$fn835 = $row['FileName']; // check for duplicate
-								$fn835_ct++;
-							}
+						if ($tp == 'f835') { $clm_ct += $row['Claim_ct']; }
+						// check for duplicates
+						// here assume that files with multiple rows are consecutive
+						if ($fntp !== $row['FileName']) {
+							$fntp = $row['FileName'];
+							// count files that would be archived
+							if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) { $old_ct++; }
+							$fntp_ct++;
 						}
 					}
 					//
@@ -116,18 +119,14 @@ function edih_archive_report($period = '') {
 					csv_edihist_log("edih_archive_report: error $tp file count $dir_ct with csv rows $row_ct");
 				}
 				//
-				if ($tp == 'f835') {
-					$mis = ( ($fn835_ct) != $dir_ct ) ? "(mismatch csv $fn835_ct dir $dir_ct)" : "(check/eft count)";
-					$old_ct = ($old_ct) ? $fn835_ct : $old_ct;
-				} elseif ($tp == 'f837')  {
+				$mis = ($fntp_ct == $dir_ct ) ? "(check/eft count or ISA--IEA count)" : "(mismatch csv $fntp_ct dir $dir_ct)";
+				//
+				if ($tp == 'f837')  {
 					$str_html .= "<li><em>Note:</em> 837 Claims files are not archived </li>".PHP_EOL;
-					$mis = ( ($row_ct) != $dir_ct ) ? "(mismatch csv $row_ct dir $dir_ct)" : "";
-				} else {
-					$mis = ( ($row_ct) != $dir_ct ) ? "(mismatch csv $row_ct dir $dir_ct)" : "";
 				}
 				//
 				$str_html .= "<li>files directory has $dir_ct files, using $dir_kb </li>".PHP_EOL;
-				$str_html .= ($subdir_ct) ? "<li> <em>warning</em> found $subdir_ct sub-directories</li>".PHP_EOL : "";
+				$str_html .= ($subdir_ct && ($tp != 'f837'))  ? "<li> <em>warning</em> found $subdir_ct sub-directories</li>".PHP_EOL : "";
 				$str_html .= "<li>files csv table has $row_ct rows $mis</li>".PHP_EOL;
 				$str_html .= ($clm_ct) ? "<li>there are $clm_ct claim transactions counted</li>".PHP_EOL : "";
 				$str_html .= ($old_ct) ? "<li>Archive date $strdt would archive $old_ct files </li>".PHP_EOL : "";
@@ -193,7 +192,7 @@ function edih_archive_date($period) {
 
 /**
  * Create an array of file names to be archived
- * The 'Date' column in the [type]_files.csv file
+ * The 'Date' column in the files_[type].csv file
  * is compared to the archive date.  If the date is less
  * than the archive date, the "FileName' value is copied
  * 
@@ -223,12 +222,6 @@ function edih_archive_filenames($csv_ar, $archive_date) {
 		}
 	}
 	$ret_ar = (count($fn_ar)) ? array_values(array_unique($fn_ar)) : $fn_ar;
-	//
-	// debug
-	//$fp = csv_edih_basedir().DS.'archive'.DS.'fn_ar.txt';
-	//$ftxt = '';
-	//foreach($fn_ar as $fn) { $ftxt .= $fn.PHP_EOL; }
-	//file_put_contents($fp, $ftxt, FILE_APPEND);
 	//
 	return $ret_ar;
 }

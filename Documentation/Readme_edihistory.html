@@ -53,7 +53,10 @@ In order to best use these scripts, you must diligently upload all your edi file
 Since the information in the EDI files is <strong>HIPAA protected</strong>, do not use these scripts on a public server! (or any computer where access is not restricted)  The files and tables are stored in the OpenEMR directory under &quot;openemr/sites/[sitedir]/edi/history/&quot;  Use the OpenEMR access control scheme to determine which users can use the scripts, probably &quot;accounting&quot;. The files and contained information will be as secure as your OpenEMR installation. 
 </p>
 <p><em>Upgrade</em><br />
-There is no &quot;upgrade&quot; script in the project. Sorry. I suggest you make a copy of the existing /history directory tree. Then delete the &quot;/history&quot; tree (not the /edi, just the /history -- this leaves all the batch files under /edi/[name].batch.txt). Then select the EDI History module in the left nav, which will create the new /history tree. Then copy all the x12 files to their new directories (note: era &gt; f835). Make sure the files ownership matches the openEMR ownershp. Then use the &quot;Process&quot; button on the New Files tab.  De-select the html and errors output checkboxes.  New csv tables will be created and all the files will be processed.  You may have to upload one file to activate the Process button.
+The &quot;upgrade&quot; process consists of renaming existing .csv files to <em>old_[files|claims]_[type].csv</em> and moving the existing &quot;era&quot; files to the newly created &quot;f835&quot; directory. This is handled by the <em>csv_setup()</em> function in <em>edih_csv_inc.php</em>. Otherwise, the only actons are the creation of the new directories. If you want the <em>/history/</em> directory to be clear of old cruft, then you can manually delete or move the &quot;old&quot; csv files under the <em>/csv</em> directory and also remove the <em>era</em>, <em>text</em>, <em>ibr</em>, <em>ebr</em>, and <em>dpr</em> directories, if present. Do not delete any of the following directories: archive, csv, f270, f271, f276, f277, f278, f835, f997, log, or tmp.
+</p>
+<p>
+If for some reason the scripted upgrade does not work, you may wish to manually upgrade. I suggest you make a copy of the existing /history directory tree. Then delete the &quot;/history&quot; tree (not the /edi, just the /history -- this leaves all the batch files under /edi/[name].batch.txt). Then select the EDI History module in the OpenEMR left nav, which will create the new /history tree. Then copy all the x12 files to their new directories (note: era &gt; f835). Make sure the files ownership matches the OpenEMR ownershp. Then use the &quot;Process&quot; button on the New Files tab.  De-select the html and errors output checkboxes.  New csv tables will be created and all the files will be processed.  You may have to upload one file to activate the Process button.
 <br />
 The [sitedir] is often called &quot;default&quot; and [/path/to/mydir] is your choice. Directory path details may vary.<br />
 <pre><code>
@@ -84,9 +87,9 @@ chmod 0400 [ftype]/*<br />
 </p>
 <h3>Usage</h3>
 <p><em>New Files</em><br />
-Browse and Submit<br />
+&nbsp;-- Browse and Submit<br />
 Select multiple files from your user directory where you have downloaded the files from your x12 partner.  If there is a limit on uploaded files, you should be notified so you can repeat the process and get all files uploaded.  Each file is checked and classified.  If a file is rejected, that is because it was not interpreted as an x12 format file or not a type the scripts can deal with (there are many types).  The scripts should be able to parse any valid Health Care category x12 file, so please submit a comment on the OpenEMR forum if you have a valid x12 file that is rejected. For .zip files, there must not be sub directories, because the parsing script does not handle sub directories.<br />
-<em>Process</em><br />
+&nbsp;-- Process<br />
 After new files are uploaded, click the &quot;Process&quot; button. You can (de)select html and/or errors-only, but they are on by default, so you will see a listing of summary information about the files, with particular details where the script detected a possible problem, like a rejected claim.
 </p>
 <p><em>CSV Tables</em><br />
@@ -101,13 +104,16 @@ Select a log file to view, or the notes file. The notes file is just a textbox y
 The edi files are quite fascinating when they are new, but once the billing cycle is complete they may be of little interest.  The idea of the Archive tab is to enable you to select an ageing period and put all the older files and their csv data rows into a zip archive stored under /history/archive. The batch files under the /sites/[sitedir]/edi directory are not archived, since I do not want to accidentally break anything.  You can change the available periods by editing the edih_view.php file in the Archive div. The &quot;Report&quot; button will produce a report on your edi files and the &quot;Archive&quot; button will do the deed. There is also a &quot;Restore&quot; button which will unpack the selected archive file and replace the files and csv data rows. You will have to manually delete archive files that you no longer want.  After you have performed an Archive, you will probably want to reload the EDI History page which will refresh the the select lists and clear the output under each tab.
 </p>
 <p><em>General Thoughts</em><br />
-The 999/997 x12 type is the acknowledgment which lists submission errors.  It must include the <em>TA1</em> segment in order for the scripts to be able to match these response files with the corresponding batch file you submitted. I think it would be possible to edit the <em>billing_process.php</em> script to give a unique ID for the GS06 value, in which case the TA1 segment would probably not be required, but code edits would be needied in the edi_history scripts as well.
+The 999/997 x12 type is the acknowledgment which lists submission errors.  It must include the <em>TA1</em> segment in order for the scripts to be able to match these response files with the corresponding batch file you submitted. I think it would be possible to edit the <em>billing_process.php</em> script to give a unique ID for the GS06 value, in which case the TA1 segment would probably not be required, but a few code edits would be needied in the edi_history scripts as well.
 </p>
 <p>
 In the old version, I used file name patterns to classify files, but version 2 uses information in the GS segment for this purpose.  If that fails for some reason, the file name pattern is tried. The patterns are found in <em>edih_csv_inc.php</em> in the function <em>csv_parameters()</em>.
 </p>
 <p>
 For 835 ERA files, I assume the internal grouping of the files is by check/eft from a particular payer. The 835 files table has a row for each check/eft number, so there are likely more rows than files.
+</p>
+<p>
+It also happens that a clearinghouse will append several ISA--IEA envelopes into a single file.  I assume they are all of the same type.  Each ISA control number receives a line in the files table, so this is another reason there could be more rows than files in a files table.
 </p>
 
 <h3>OpenEMR Integration</h3>
@@ -159,7 +165,7 @@ Installed files:
 			<li>edih_csv_inc.php</li>
 			<li>edih_csv_parse.php</li>
 			<li>edih_io.php</li>
-			<li>edih_segments_text.php</li>
+			<li>edih_segments.php</li>
 			<li>edih_uploads.php</li>
 			<li>edih_x12file_class.php</li>
 			<li>edih_271_html.php</li>

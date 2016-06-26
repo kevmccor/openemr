@@ -450,12 +450,24 @@ function csv_setup() {
 	}
 	if ($isOK) {
 		$p_ar = csv_parameters('ALL');
+		$old_csv = array('f837'=>'batch', 'f835'=>'era');
 		foreach ($p_ar as $key=>$val) {
-			//// csv headings and file paths
-			//$hdr['f'] = csv_table_header($p_ar[$key]['type'], 'file');
-			//$hdr['c'] = csv_table_header($p_ar[$key]['type'], 'claim');
-			//$tfpath['f'] = $p_ar[$key]['files_csv'];
-		    //$tfpath['c'] = $p_ar[$key]['claims_csv'];
+			// rename existing csv files to old_filename
+			if (is_dir($csv_dir)) {
+				if ($dh = opendir($csv_dir)) {
+					while (($file = readdir($dh)) !== false) {
+						if (is_file($csv_dir.DS.$file) && strpos($file, 'csv')) {
+							$rn = rename($csv_dir.DS.$file, $csv_dir.DS.'old_'.$file);
+							if ($rn) {
+								$out_str .= 'renamed csv/'.$file.' to old_'.$file.'<br />'.PHP_EOL;
+							} else {
+								$out_str .= 'attempt to rename csv/'.$file.' failed<br />'.PHP_EOL;
+							}
+						}
+					}
+				}
+			}			
+			//;
 			// make the edi files storage subdirs
 			$tp = $p_ar[$key]['type'];
 			$type_dir = $p_ar[$key]['directory'];
@@ -463,18 +475,26 @@ function csv_setup() {
 			if (is_dir($type_dir)) {
 				$out_str .= 'folder for '.$tp.' exists '.$type_dir.'<br>'.PHP_EOL;
 			} elseif (mkdir($type_dir, 0755)) {
-				$out_str .= 'created type folder '.$type_dir.'<br>'.PHP_EOL;
-				//foreach($tfpath as $k=>$v) {
-					//if ( !$v || is_file($v) ) { continue; }
-					//$fh = fopen($v, 'xb');
-					//if ($fh !== false) {
-						//$chr = fputcsv($fh, $hdr[$k]);
-						//$out_str .= ($chr) ? 'created '.$v.'<br>'.PHP_EOL : 'failed to create '.$v.'<br>'.PHP_EOL;
-						//$chr = 0;
-					//}
-					//fclose($fh);
-					//chmod($v, 0600);
-				//}
+				if ($tp == 'f835') {
+					// in upgrade case the f835 directory should not exist
+					// move 'era' files from /era to /f835
+					if (is_dir($edihist_dir.DS.'era')) {
+						$fct = 0; $rct = 0;
+						if ($dh = opendir($edihist_dir.DS.'era')) {
+							while (($file = readdir($dh)) !== false) {
+								if (is_file($edihist_dir.DS.'era'.DS.$file)) {
+									$rct++;
+									$rn = rename($edihist_dir.DS.'era'.DS.$file, $type_dir.DS.$file);
+									$fct = ($rn) ? $fct + 1 : $fct;
+								}
+							}
+						}
+						$out_str .= 'created type folder '.$type_dir.' and moved '.$fct.' of '.$rct.' files from /era<br>'.PHP_EOL;
+					}
+				} else {
+					$out_str .= 'created type folder '.$type_dir.'<br>'.PHP_EOL;
+				}
+
 			} else {
 				$out_str .= 'Setup failed to create directory for '.$tp.'<br>'.PHP_EOL;
 			}		
@@ -745,6 +765,7 @@ function csv_table_select_list($outtp='json') {
 	$idx = 0;
 	foreach($tbllist as $csvf) {
 		if ($csvf == "." || $csvf == ".." ) { continue; }
+		if (strpos($csvf, 'old') === 0) { continue; }
 		if (filesize($csvdir.DS.$csvf) < 70) { continue; }
 		if (substr($csvf, -1) == '~') { continue; }
 		$finfo = pathinfo($csvdir.DS.$csvf);
