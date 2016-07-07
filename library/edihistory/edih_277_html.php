@@ -39,7 +39,7 @@
  * @param string   bht03 or clm01 reference for transaction
  * @return string
  */
-function edih_277_transaction_html($obj277, $bht03) {
+function edih_277_transaction_html($obj277, $bht03, $accordion=false) {
 	// get the transaction segments
 	$trans = $obj277->edih_x12_transaction($bht03);
 
@@ -56,7 +56,9 @@ function edih_277_transaction_html($obj277, $bht03) {
 	//
 	$cd27x = new edih_271_codes($ds, $dr);
 	//
+	$h3_lbl = '';
 	$str_html = "";
+	$hdr_html = "";
 	//
 	$hdr_html = "<table id=$bht03 class='h277' columns=4>";
 	$hdr_html .= "<caption>Claim Status</caption>".PHP_EOL;
@@ -78,6 +80,7 @@ function edih_277_transaction_html($obj277, $bht03) {
 			//
 			$idtype = '';
 			$name = '';
+			
 			$var = '';
 			$rej_reason = ''; 
 			$follow = '';
@@ -108,7 +111,8 @@ function edih_277_transaction_html($obj277, $bht03) {
 				$hdr_html .= "<tr><td colspan=2><em>Reference:</em> $elem03</td><td colspan=2><em>Sequence:</em> $elem01</td></tr>".PHP_EOL;
 				$hdr_html .= "<tr><td colspan=2><em>Date:</em> $elem04</td><td colspan=2><em>Type:</em> $elem02</td>".PHP_EOL;
 				$hdr_html .= ($elem06) ? "<tr><td>&gt;</td><td colspan=3><em>Type:</em> $elem06</td></tr>".PHP_EOL : "";
-				//	
+				//
+				$bht = $elem03;	
 				continue;
 			}
 			//
@@ -177,10 +181,12 @@ function edih_277_transaction_html($obj277, $bht03) {
 				} elseif ($loopid == '2000D') {
 					$sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$descr'>$name</td></tr>" .PHP_EOL;
 					$sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$descr'><em>$nm108</em> $nm109</td></tr>" .PHP_EOL;
+					$h3_lbl = $name;
 					$loopid = '2100D';
 				} elseif ( $loopid == '2000E' ) {					
 					$dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$descr'>$name</td></tr>" .PHP_EOL;
 					$dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$descr'><em>$nm108</em> $nm109</td></tr>" .PHP_EOL;
+					$h3_lbl = $name;
 					$loopid = '2100E';
 				} 
 				//
@@ -225,9 +231,11 @@ function edih_277_transaction_html($obj277, $bht03) {
 					$loopid = '2200C';
 				} elseif ($loopid == '2100D') {
 					$sbr_stc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$elem01</em> $elem02</td></tr>".PHP_EOL;
+					$h3_lbl = ($h3_lbl) ? $h3_lbl.' '.$elem02 : $h3_lbl;
 					$loopid = '2200D';
 				} elseif ($loopid == '2100E') {
 					$dep_stc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$elem01</em> $elem02</td></tr>".PHP_EOL;
+					$h3_lbl = ($h3_lbl) ? $h3_lbl.' '.$elem02 : $h3_lbl;
 					$loopid = '2200E';
 				}
 				//
@@ -456,7 +464,11 @@ function edih_277_transaction_html($obj277, $bht03) {
 			}
 			//
 		}
-		//				
+		//
+		if ($accordion) {
+			$str_html .= "<h3>$bht $h3_lbl</h3>".PHP_EOL;
+			$str_html .= "<div id='ac_$bht'>".PHP_EOL;
+		}					
 		$str_html .= ($hdr_html) ? $hdr_html : "";	
 		$str_html .= ($src_html) ? $src_html : "";
 		$str_html .= ($rcv_html) ? $rcv_html : "";
@@ -468,6 +480,7 @@ function edih_277_transaction_html($obj277, $bht03) {
 		$str_html .= "<tr><td colspan=4>&nbsp;</td></tr>".PHP_EOL;
 		$str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
 		//
+		if ($accordion) { $str_html .= "</div>".PHP_EOL; }
 	}
 	return 	$str_html;
 }
@@ -525,15 +538,15 @@ function edih_277_html($filename, $bht03='') {
 					//
 					// get each transaction
 					foreach($st['bht03'] as $bht) {
-						$html_str .= "<h3>$bht Claim Status <em>Date</em> $gs_date <em>Source</em> $gs_sender</h3>".PHP_EOL;
-						$html_str .= "<div id='ac_$bht'>".PHP_EOL;
+						//$html_str .= "<h3>$bht Claim Status <em>Date</em> $gs_date <em>Source</em> $gs_sender</h3>".PHP_EOL;
+						//$html_str .= "<div id='ac_$bht'>".PHP_EOL;
 						//
-						$html_str .= edih_277_transaction_html($obj277, $bht);
+						$html_str .= edih_277_transaction_html($obj277, $bht, true);
 						//
-						$html_str .= "</div>".PHP_EOL;
+						//$html_str .= "</div>".PHP_EOL;
 					}
-					$html_str .= "</div>".PHP_EOL;
 				}
+				$html_str .= "</div>".PHP_EOL;
 			}
 					
 		} else {

@@ -435,99 +435,27 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			data: { archlist: 'yes' },
 			dataType: 'json',
 			success: function(data) {
-			  var options = jQuery('#archrestoresel').attr('options');
-			  var optct = data.length;
-			  if (optct) {
+				//var options = jQuery('#archrestoresel').attr('options');
+				jQuery('#archrestoresel').empty();
+				var optct = data.length;
 				var options = [];
-				options.push("<option selected='selected'><?php echo xla("Choose from list"); ?></option>");
-				for (var i=0; i<optct; i++) {
-				  options.push("<option value=" + data[i] + ">" + data[i] + "</option>");
-				}
+				if (optct) {				
+					options.push("<option selected='selected'><?php echo xla("Choose from list"); ?></option>");
+					for (var i=0; i<optct; i++) {
+						options.push("<option value=" + data[i] + ">" + data[i] + "</option>");
+					}
+				} else {
+					options.push("<option selected='selected'><?php echo xla("No Archives"); ?></option>");
+				} 
 				jQuery('#archrestoresel').html(options.join(""));
-			  }
 			}
 		});
 	};
-/* ************ 
- * called to bind links in ajax retrieved content for dialog display
- * from links in csv data tables
- * .on( events [, selector] [, data], handler(eventObject) )
- * bindlinks('#tblshow', 'click', '.seg', 'click', '#tbseg', '<?php echo xla("Code Text"); ?>')	
- */
-/* ****** dialog cruft
-buttons: [{ text: "Close", click: function(){
-								jQuery(this).html("");
-								jQuery(this).dialog("close");
-								}
-							}],
- 
-// add this div for minimized dialog
-<div id="dialog_window_minimized_container"></div>
-// **** script *****
-var _init = jQuery.ui.dialog.prototype._init;
-$.ui.dialog.prototype._init = function() {
-    //Run the original initialization code
-    _init.apply(this, arguments);
-     
-    //set some variables for use later
-    var dialog_element = this;
-    var dialog_id = this.uiDialogTitlebar.next().attr('id');
-     
-    //append our minimize icon
-    this.uiDialogTitlebar.append('<a href="#" id="' + dialog_id + 
-    '-minbutton" class="ui-dialog-titlebar-minimize ui-corner-all">'+
-    '<span class="ui-icon ui-icon-minusthick"></span></a>');
-     
-    //append our minimized state
-    $('#dialog_window_minimized_container').append(
-        '<div class="dialog_window_minimized ui-widget ui-state-default ui-corner-all" id="' + 
-        dialog_id + '_minimized">' + this.uiDialogTitlebar.find('.ui-dialog-title').text() + 
-        '<span class="ui-icon ui-icon-newwin"></div>');
-     
-    //create a hover event for the minimize button so that it looks good
-    $('#' + dialog_id + '-minbutton').hover(function() {
-        $(this).addClass('ui-state-hover');
-    }, function() {
-        $(this).removeClass('ui-state-hover');
-    }).click(function() {
-        //add a click event as well to do our "minimalization" of the window
-        dialog_element.close();
-        $('#' + dialog_id + '_minimized').show();
-    });
-     
-    //create another click event that maximizes our minimized window
-    $('#' + dialog_id + '_minimized').click(function() {
-        $(this).hide();
-        dialog_element.open();
-    });
 
-    // z-index of dialog
-    $( ".selector" ).on( "dialogfocus", function( event, ui ) {} );
-    $( ".selector" ).dialog( "moveToTop" );
-    
-'a.rsp .sub .seg'
-    $(function(){
-    //$('a').on('click', function(e){
-    jQuery('a.rsp .sub .seg').on('click', function(e){
-        e.preventDefault();
-        $('<div/>', {'class':'myDlgClass', 'id':'link-'+($(this).index()+1)})
-        .load($(this).attr('href')).appendTo('body').dialog();
-    });
-});
-};
-jQuery('div#tblshow > td').hover(
-function(e){ jQuery(this).parentsUntil('tr').parent().addClass('outlinetr'); },
-function(e){ jQuery(this).parentsUntil('tr').parent().removeClass('outlinetr'); }
-);
-jQuery('div#tblshow > tr').hover(
-function(e){ jQuery(this).addClass('outlinetr'); },
-function(e){ jQuery(this).removeClass('outlinetr'); }
-);
+/*
+jQuery-UI dialog
+    control visibility by designating to which div the dialog is appended 
 */
-/** alternative to bindlinks function ?  
-    control visibility by designating to which div the dialog is appended
-    dialogs appended to div#tabs will be on top (appendTo as option also) appendTo: "#tabs", 
-**** */
     function dialogOptions(appendElem) {
 		var tblDialogOpts = {
 			appendTo: appendElem,
@@ -583,65 +511,16 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 
 /*
 // **** script ****
-// ***** not used due to multiple event attachment -- see added jQuery(dElem).off(dEvt, cClass); 
-// .on( events [, selector ] [, data ], handler )
-// bind 'a.cClass' child of dElem to event dEvt
-// bindlinks('#processed', 'click', '.rsp', 'click', '#rsp', '<?php echo xla("Response"); ?>'),
-// bindlinks('#tblshow', 'click', '.rsp', 'click', '#tbrsp', '<?php echo xla("Response"); ?>'),
-*/
-    function bindlinks(dElem, dEvt, cClass, cEvt, cElem, mytitle){
-		 jQuery(dElem).off(dEvt, cClass); 
-         jQuery(dElem).on(dEvt, cClass, cEvt, function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            //
-            var statDialog = jQuery(cElem).dialog({
-				appendTo: dElem, //"#tabs",
-                autoOpen: false,
-				resizable: true,
-                draggable: true,
-                modal: false,
-                title: mytitle, //jQuery(this).attr('title'),
-                height: 360,
-                width: 600,
-                close: function(event, ui) {
-		            //$(this).dialog("close");
-		            //$(this).remove();
-		            console.log(this);
-		            $(this).empty();
-		        }           
-            });
-            //
-            console.log(this);
-            jQuery.get(jQuery(this).attr('href'), function(data){ jQuery(cElem).html(data); });
-            //
-            if (statDialog.dialog('isOpen')) { statDialog.dialog('close'); };
-            statDialog.dialog('open');
-        });
-    }
-
-/* ******************* end document ready ***********/
 /* ****
  * jQuery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
  */
-    function apply_accordion() {
-	    jQuery( "#accordion" )
+    function apply_accordion(selector) {
+		var sel = selector + ' > #accordion';
+	    jQuery( sel )
 	      .accordion({
-	        header: "> div > h3",
+	        header: "h3",
 	        collapsible: true,
-	        heightStyle: "fill"
-	      })
-	      .sortable({
-	        axis: "y",
-	        handle: "h3",
-	        stop: function( event, ui ) {
-	          // IE doesn't register the blur when sorting
-	          // so trigger focusout handlers to remove .ui-state-focus
-	          ui.item.children( "h3" ).triggerHandler( "focusout" );
-	 
-	          // Refresh accordion to handle new order
-	          $( this ).accordion( "refresh" );
-	        }
+	        heightStyle: "content"
 	      });
 	  };
 /* ****************************
@@ -684,8 +563,6 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 	});
 	// uplreset button click the file input is reset and associated values cleared
 	jQuery('#uplreset').on('click', function( event ) {
-		//console.log(event.type);
-		//console.log(jQuery('#ufile').value);
 		event.preventDefault();
 		event.stopPropagation();
 		jQuery('#fileupl1').html('');
@@ -737,7 +614,6 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 	jQuery('#processnew').on('submit', function(e) {
 		e.stopPropagation();
 		e.preventDefault();
-		//var prcForm = document.getElementById("process_new"); 
 		jQuery.ajax({
 			    url: jQuery('#processnew').attr('action'), 
 			    type: 'GET',
@@ -755,7 +631,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 				],
 			    error: function( xhr, status ) {
 					alert( "Sorry, there was a problem!" ),
-					jQuery('#procdessed').html(status)
+					jQuery('#processed').html(status)
 				}				
 			});
 		upld_ct = 0;
@@ -847,24 +723,12 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 					jQuery('#tblshow').html(data);
 					jQuery('#tblshow').css('maxWidth', 'fit-contents'); 
 					jQuery('#tblshow table#csvTable').DataTable({
-						//DisplayLength: 10,    
-						//bJQueryUI: true, 
-						//bScrollInfinite: true,
-						//bScrollCollapse: true,
-                        //iScrollLoadGap: 20,
-                        //sScrollY:"200px",
-                        //sScrollX: true
-                        //bPaginate: true,
-                        //scroll: true,
-                        //'jQuery UI': true,
                         'processing': true,
 						'scrollY': '300px',
 						'scrollCollapse': true,
 						'scrollX': true,
-						//sScrollXInner: '100%'
 						'paging': true
 					});
-                    //jQuery("#csvTable_filter").before(tbltl);
 				},	
 			]              
 		});
@@ -929,6 +793,15 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 			},
 		    error: function( xhr, status ) { alert( "Sorry, there was a problem!" ); }
 		});
+		// jQuery accordion requires html to be present at document ready
+		// accordion does not work for added content, so no effect here
+		jQuery('#x12rsp > #accordion')
+	      .accordion({
+	        header: "h3",
+	        collapsible: true,
+	        heightStyle: "content",
+	        active: false
+	      });
 		return false;
 	});
 	//
@@ -1047,10 +920,9 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 
 /*
  * ==== Archive form id="formarchive"
- *   note use of 'one' instead of 'on' so archive command is run only once
+ * 
  */
-	// The .one() method is especially useful ...
-	jQuery('#formarchive').one('submit', function(e) {
+	jQuery('#formarchive').on('submit', function(e) {
 		//e.stopPropagation();
 		e.preventDefault();
 		var archForm = document.getElementById('formarchive'); 
@@ -1075,10 +947,6 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 			// code to run regardless of success or failure
 			// complete: function( xhr, status ) { alert( "The request is complete!" ); }
 		});
-		$( this ).click(function() {
-			console.log( "You have clicked this before!" );
-			alert("Archive already performed!");
-	    });
 	    archlist();
 	    csvlist();
 		return false;
@@ -1123,6 +991,13 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 	jQuery('#formarchrestore').on('submit', function(e) {
 		//e.stopPropagation();
 		e.preventDefault();
+		
+		var sel = jQuery( "#archrestoresel option:selected" ).text();
+		console.log( sel );
+		if (sel == "No Archives") {
+			alert("No archive files present");
+			return false;
+		}
 		var archrstForm = document.getElementById('formarchrestore'); 
 		var archrstdata = new FormData(archrstForm);  
 		var rspElem = jQuery('#archiversp');
@@ -1140,13 +1015,7 @@ function(e){ jQuery(this).removeClass('outlinetr'); }
 				rspElem.html(data);
 			},
 			error: function( xhr, status ) { alert( "Sorry, there was a problem!" ); },
-			// code to run regardless of success or failure
-			// complete: function( xhr, status ) { alert( "The request is complete!" ); }
 		});
-		$( this ).click(function() {
-			console.log( "You have clicked this before!" );
-			alert("Restore already performed!");
-	    });
 	    archlist();
 	    csvlist();
 	    archrstForm.reset();
